@@ -4,7 +4,9 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-  // 告诉 Next.js，GitHub 仓库名作为基础路径
+  // 关键新增：告诉 Next.js 你的 GitHub 仓库名作为基础路径
   basePath: '/Learning-Diary', 
+  
 };
+
 export default nextConfig;
