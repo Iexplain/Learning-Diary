@@ -1,1 +1,8 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
+/* 保证整个页面的底色与设计一致 */
+body {
+  background-color: #f9fafb; 
+}
