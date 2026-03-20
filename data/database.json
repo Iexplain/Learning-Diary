@@ -1,11 +1,6 @@
 {
   "tasks": [
     {
-      "id": "2",
-      "text": "Check OpenClaw model deployment status",
-      "completed": false
-    },
-    {
       "id": "3",
       "text": "LeetCode: Intersection of Two Linked Lists",
       "completed": true
