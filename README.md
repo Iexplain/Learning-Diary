@@ -1,4 +1,4 @@
 # Learning-Diary
 
 ## Quick Start
-https://iexplain.github.io/Learning-Diary/
+访问：https://iexplain.github.io/Learning-Diary/
