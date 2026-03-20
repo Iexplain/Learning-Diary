@@ -1,0 +1,16 @@
+{
+  "tasks": [
+    { "id": "1", "text": "Review RNA-seq fastp pipeline logs", "completed": true },
+    { "id": "2", "text": "Check OpenClaw model deployment status", "completed": false },
+    { "id": "3", "text": "LeetCode: Intersection of Two Linked Lists", "completed": true }
+  ],
+  "weeklyStats": [
+    { "name": "Mon", "completion": 60 },
+    { "name": "Tue", "completion": 100 },
+    { "name": "Wed", "completion": 80 },
+    { "name": "Thu", "completion": 100 },
+    { "name": "Fri", "completion": 40 },
+    { "name": "Sat", "completion": 0 },
+    { "name": "Sun", "completion": 0 }
+  ]
+}
