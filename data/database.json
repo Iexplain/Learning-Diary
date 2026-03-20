@@ -1,11 +1,6 @@
 {
   "tasks": [
     {
-      "id": "3",
-      "text": "LeetCode: Intersection of Two Linked Lists",
-      "completed": true
-    },
-    {
       "id": "1774046109263",
       "text": "Savings Account",
       "completed": false
