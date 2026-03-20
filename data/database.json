@@ -1,11 +1,6 @@
 {
   "tasks": [
     {
-      "id": "1",
-      "text": "Review RNA-seq fastp pipeline logs",
-      "completed": true
-    },
-    {
       "id": "2",
       "text": "Check OpenClaw model deployment status",
       "completed": false
