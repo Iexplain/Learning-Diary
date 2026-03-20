@@ -106,19 +106,30 @@
             }
         }
 
-        // 新建任务
+        // 新建任务 (增强报错提示版)
         async function createTask() {
             const input = document.getElementById('new-task');
             const title = input.value.trim();
             if(!title) return;
             
-            input.disabled = true; // 防抖
-            await fetch(`https://api.github.com/repos/${repoPath()}/issues`, {
-                method: 'POST',
-                headers: getHeaders(),
-                body: JSON.stringify({ title: title, labels: ['daily-task'] })
-            });
-            input.value = '';
+            input.disabled = true; // 防抖，防止连点
+            try {
+                const res = await fetch(`https://api.github.com/repos/${repoPath()}/issues`, {
+                    method: 'POST',
+                    headers: getHeaders(),
+                    body: JSON.stringify({ title: title, labels: ['daily-task'] })
+                });
+                
+                if (!res.ok) {
+                    // 如果 API 拒绝了我们，把 GitHub 的真实抱怨打印出来
+                    const errData = await res.json();
+                    alert(`添加失败！状态码: ${res.status}\nGitHub 报错: ${errData.message}\n请检查 Token 是否勾选了 repo 权限！`);
+                } else {
+                    input.value = ''; // 成功才清空输入框
+                }
+            } catch (error) {
+                alert(`网络请求出错: ${error.message}`);
+            }
             input.disabled = false;
             loadTasks();
         }
