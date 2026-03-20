@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learning Diary Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gray-100 p-4 md:p-8 font-sans">
+    <div class="max-w-5xl mx-auto space-y-8">
+        
+        <div class="bg-white p-6 rounded-lg shadow-sm flex flex-col md:flex-row justify-between items-center gap-4">
+            <h1 class="text-3xl font-bold text-blue-600 tracking-tight">我的学习日记</h1>
+            <div class="flex flex-col md:flex-row gap-2 w-full md:w-auto">
+                <input type="password" id="gh-token" placeholder="输入 GitHub PAT" class="border p-2 rounded text-sm w-full md:w-48 outline-none focus:border-blue-500">
+                <input type="text" id="gh-repo" placeholder="owner/repo (如: linan/Learning-Diary)" class="border p-2 rounded text-sm w-full md:w-64 outline-none focus:border-blue-500">
+                <button onclick="saveSettings()" class="bg-gray-800 text-white px-4 py-2 rounded text-sm hover:bg-gray-700 transition">保存配置</button>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="bg-white p-6 rounded-lg shadow-sm flex flex-col h-[500px]">
+                <h2 class="text-xl font-semibold mb-4 text-gray-800">今日任务分配</h2>
+                <div class="flex space-x-2 mb-4">
+                    <input type="text" id="new-task" placeholder="例如: 跑通 RNA-seq 预处理流程" class="flex-1 border p-2 rounded outline-none focus:border-blue-500" onkeypress="if(event.key === 'Enter') createTask()">
+                    <button onclick="createTask()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">添加</button>
+                </div>
+                <div id="task-list" class="space-y-3 overflow-y-auto flex-1 pr-2">
+                    <p class="text-gray-400 text-sm text-center mt-10">请先保存右上角的仓库配置...</p>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-lg shadow-sm h-[500px] flex flex-col">
+                <h2 class="text-xl font-semibold mb-4 text-gray-800">近 7 天打卡趋势</h2>
+                <div class="flex-1 relative">
+                    <canvas id="trendChart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class="text-center text-sm text-gray-500">
+            <a href="archives/" class="hover:text-blue-600 underline transition">查看历史自动归档</a>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. 初始化与配置加载 ---
+        document.getElementById('gh-token').value = localStorage.getItem('ghToken') || '';
+        document.getElementById('gh-repo').value = localStorage.getItem('ghRepo') || '';
+
+        function saveSettings() {
+            const token = document.getElementById('gh-token').value.trim();
+            const repo = document.getElementById('gh-repo').value.trim();
+            if(!token || !repo) {
+                alert("Token 和 仓库名不能为空！");
+                return;
+            }
+            localStorage.setItem('ghToken', token);
+            localStorage.setItem('ghRepo', repo);
+            alert('配置已保存！正在加载数据...');
+            loadData();
+        }
+
+        const getHeaders = () => ({
+            'Authorization': `token ${localStorage.getItem('ghToken')}`,
+            'Accept': 'application/vnd.github.v3+json'
+        });
+
+        const repoPath = () => localStorage.getItem('ghRepo');
+
+        // 统一加载入口
+        function loadData() {
+            if(localStorage.getItem('ghToken') && repoPath()) {
+                loadTasks();
+                renderChart();
+            }
+        }
+
+        // --- 2. 任务流转逻辑 (GitHub Issues API) ---
+        
+        // 加载未完成任务 (Open)
+        async function loadTasks() {
+            try {
+                const res = await fetch(`https://api.github.com/repos/${repoPath()}/issues?state=open&labels=daily-task`, { headers: getHeaders() });
+                if (!res.ok) throw new Error("API 请求失败，请检查 Token 权限或仓库名");
+                const issues = await res.json();
+                
+                const list = document.getElementById('task-list');
+                list.innerHTML = '';
+                
+                if(issues.length === 0) {
+                    list.innerHTML = `<p class="text-gray-400 text-sm text-center mt-10">🎉 太棒了，当前没有待办任务！</p>`;
+                    return;
+                }
+
+                issues.forEach(issue => {
+                    list.innerHTML += `
+                        <div class="flex justify-between items-center bg-gray-50 p-3 rounded border hover:shadow-sm transition">
+                            <span class="text-gray-700">${issue.title}</span>
+                            <button onclick="completeTask(${issue.number})" class="text-sm text-green-600 hover:bg-green-600 hover:text-white px-3 py-1 rounded border border-green-600 transition">完成</button>
+                        </div>`;
+                });
+            } catch (error) {
+                console.error(error);
+                document.getElementById('task-list').innerHTML = `<p class="text-red-500 text-sm text-center mt-10">加载失败: ${error.message}</p>`;
+            }
+        }
+
+        // 新建任务
+        async function createTask() {
+            const input = document.getElementById('new-task');
+            const title = input.value.trim();
+            if(!title) return;
+            
+            input.disabled = true; // 防抖
+            await fetch(`https://api.github.com/repos/${repoPath()}/issues`, {
+                method: 'POST',
+                headers: getHeaders(),
+                body: JSON.stringify({ title: title, labels: ['daily-task'] })
+            });
+            input.value = '';
+            input.disabled = false;
+            loadTasks();
+        }
+
+        // 完成任务 (Close Issue)
+        async function completeTask(issueNumber) {
+            await fetch(`https://api.github.com/repos/${repoPath()}/issues/${issueNumber}`, {
+                method: 'PATCH',
+                headers: getHeaders(),
+                body: JSON.stringify({ state: 'closed' })
+            });
+            loadTasks();
+            renderChart(); // 完成后刷新图表
+        }
+
+        // --- 3. 动态图表逻辑 ---
+        async function renderChart() {
+            const labels = [];
+            const dataCounts = [0, 0, 0, 0, 0, 0, 0]; 
+            const today = new Date();
+            
+            // 生成 X 轴标签
+            for(let i = 6; i >= 0; i--) {
+                const d = new Date();
+                d.setDate(today.getDate() - i);
+                labels.push(`${d.getMonth() + 1}/${d.getDate()}`);
+            }
+
+            // 计算 7 天前的 UTC 时间字符串
+            const sevenDaysAgo = new Date();
+            sevenDaysAgo.setDate(today.getDate() - 7);
+            const sinceStr = sevenDaysAgo.toISOString();
+
+            try {
+                const res = await fetch(`https://api.github.com/repos/${repoPath()}/issues?state=closed&labels=daily-task&since=${sinceStr}`, { 
+                    headers: getHeaders() 
+                });
+                const closedIssues = await res.json();
+
+                // 统计数据
+                closedIssues.forEach(issue => {
+                    if(issue.closed_at) {
+                        const closedDate = new Date(issue.closed_at);
+                        // 去掉时分秒的干扰，只比较日期差值
+                        const todayDateOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+                        const closedDateOnly = new Date(closedDate.getFullYear(), closedDate.getMonth(), closedDate.getDate());
+                        
+                        const diffTime = todayDateOnly.getTime() - closedDateOnly.getTime();
+                        const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+                        
+                        const index = 6 - diffDays;
+                        if(index >= 0 && index <= 6) {
+                            dataCounts[index]++;
+                        }
+                    }
+                });
+
+                // 绘制图表
+                const ctx = document.getElementById('trendChart').getContext('2d');
+                if(window.myChart) window.myChart.destroy();
+                
+                window.myChart = new Chart(ctx, {
+                    type: 'bar', // 柱状图在按天统计上视觉效果更好
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: '任务完成数量',
+                            data: dataCounts,
+                            backgroundColor: 'rgba(37, 99, 235, 0.7)',
+                            borderRadius: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: { 
+                                beginAtZero: true, 
+                                ticks: { stepSize: 1 } 
+                            }
+                        },
+                        plugins: {
+                            legend: { display: false } // 隐藏多余的图例
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error("图表渲染失败", error);
+            }
+        }
+
+        // 页面加载时尝试获取数据
+        if(localStorage.getItem('ghToken')) loadData();
+    </script>
+</body>
+</html>
