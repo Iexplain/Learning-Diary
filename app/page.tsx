@@ -5,7 +5,6 @@ import { Check, X, Plus, RefreshCw } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { saveToGithub } from '@/lib/github';
 
-// 1. 定义数据的 TypeScript 类型
 interface Task {
   id: string;
   text: string;
@@ -18,7 +17,6 @@ interface WeeklyStat {
 }
 
 export default function Dashboard() {
-  // 2. 加上泛型 <Task[]> 和 <WeeklyStat[]>，明确告诉 TS 数组里的内容
   const [tasks, setTasks] = useState<Task[]>([]);
   const [weeklyStats, setWeeklyStats] = useState<WeeklyStat[]>([]);
   
@@ -33,7 +31,6 @@ export default function Dashboard() {
     fetch(`https://raw.githubusercontent.com/${process.env.NEXT_PUBLIC_REPO_OWNER}/${process.env.NEXT_PUBLIC_REPO_NAME}/main/data/database.json?t=${Date.now()}`)
       .then(res => res.json())
       .then(data => {
-        // 同时更新 tasks 和 weeklyStats
         setTasks(data.tasks || []);
         setWeeklyStats(data.weeklyStats || []);
       })
@@ -45,32 +42,51 @@ export default function Dashboard() {
   const completionPercentage = totalCount === 0 ? 0 : Math.round((completedCount / totalCount) * 100);
 
   // 触发保存到 GitHub
-  const syncData = async (updatedTasks: Task[]) => {
+  const syncData = async (updatedTasks: Task[], updatedStats: WeeklyStat[]) => {
     setIsSyncing(true);
-    // 3. 修复了原来报错的 initialData.weeklyStats，改用状态里的 weeklyStats
-    const success = await saveToGithub({ tasks: updatedTasks, weeklyStats: weeklyStats });
+    const success = await saveToGithub({ tasks: updatedTasks, weeklyStats: updatedStats });
     if (!success) alert("Sync failed. Check your network or GitHub Token permissions.");
     setIsSyncing(false);
+  };
+
+  // 核心新增：统一的数据更新管道
+  const handleUpdateTasks = (newTasks: Task[]) => {
+    // 1. 更新任务列表状态
+    setTasks(newTasks);
+
+    // 2. 重新计算当前的新完成率
+    const newCompletedCount = newTasks.filter(t => t.completed).length;
+    const newTotalCount = newTasks.length;
+    const newPercentage = newTotalCount === 0 ? 0 : Math.round((newCompletedCount / newTotalCount) * 100);
+
+    // 3. 获取今天是星期几（自动生成 "Mon", "Tue" 等格式）
+    const todayShort = new Date().toLocaleDateString('en-US', { weekday: 'short' });
+
+    // 4. 遍历折线图数据，精确更新今天的值，其他天数保持不变
+    const newStats = weeklyStats.map(stat => 
+      stat.name === todayShort ? { ...stat, completion: newPercentage } : stat
+    );
+
+    // 5. 更新折线图状态并启动云端同步
+    setWeeklyStats(newStats);
+    syncData(newTasks, newStats);
   };
 
   const addTask = () => {
     if (!newTaskText.trim()) return;
     const newTasks = [...tasks, { id: Date.now().toString(), text: newTaskText, completed: false }];
-    setTasks(newTasks);
     setNewTaskText('');
-    syncData(newTasks);
+    handleUpdateTasks(newTasks); // 调用统一管道
   };
 
   const toggleTask = (id: string) => {
     const newTasks = tasks.map(t => t.id === id ? { ...t, completed: !t.completed } : t);
-    setTasks(newTasks);
-    syncData(newTasks);
+    handleUpdateTasks(newTasks); // 调用统一管道
   };
 
   const deleteTask = (id: string) => {
     const newTasks = tasks.filter(t => t.id !== id);
-    setTasks(newTasks);
-    syncData(newTasks);
+    handleUpdateTasks(newTasks); // 调用统一管道
   };
 
   return (
@@ -145,7 +161,6 @@ export default function Dashboard() {
               <h2 className="text-lg font-medium mb-4 text-gray-700">Weekly Analytics</h2>
               <div className="h-48 w-full mt-4">
                 <ResponsiveContainer width="100%" height="100%">
-                  {/* 4. 修复：这里的 data 改为使用 state 里的 weeklyStats */}
                   <LineChart data={weeklyStats} margin={{ top: 5, right: 20, left: -20, bottom: 0 }}>
                     <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#9CA3AF', fontSize: 12}} dy={10} />
                     <YAxis 
