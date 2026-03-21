@@ -1,14 +1,9 @@
 {
   "tasks": [
     {
-      "id": "1774046127760",
-      "text": "Savings Account",
-      "completed": false
-    },
-    {
       "id": "1774046164984",
       "text": "Savings Account",
-      "completed": true
+      "completed": false
     }
   ],
   "weeklyStats": [
@@ -34,7 +29,7 @@
     },
     {
       "name": "Sat",
-      "completion": 50
+      "completion": 0
     },
     {
       "name": "Sun",
