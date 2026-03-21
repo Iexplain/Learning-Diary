@@ -27,10 +27,8 @@ export default function Dashboard() {
   useEffect(() => {
     setCurrentDate(new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' }));
     
-    // 改为使用 GitHub API 拉取实时数据，彻底绕过 CDN 5分钟缓存
     const fetchRealTimeData = async () => {
       try {
-        // 如果本地存了 Token，带上它可以提高请求上限（避免被限制）
         const GITHUB_TOKEN = typeof window !== 'undefined' ? localStorage.getItem('GITHUB_PAT') : null;
         const headers: HeadersInit = {
           'Accept': 'application/vnd.github.v3+json',
@@ -42,23 +40,34 @@ export default function Dashboard() {
 
         const res = await fetch(`https://api.github.com/repos/${process.env.NEXT_PUBLIC_REPO_OWNER}/${process.env.NEXT_PUBLIC_REPO_NAME}/contents/data/database.json`, { headers });
         
-        if (!res.ok) throw new Error("API request failed");
+        if (!res.ok) throw new Error(`API failed with status ${res.status}`);
 
         const fileData = await res.json();
-        // GitHub API 返回的文件内容是 Base64 编码的，需要解码回 JSON 字符串
-        const decodedContent = decodeURIComponent(escape(atob(fileData.content)));
+        
+        // 关键修复 1：剔除 GitHub 返回数据中携带的换行符，防止 atob 崩溃
+        const cleanBase64 = fileData.content.replace(/\n/g, '');
+        const decodedContent = decodeURIComponent(escape(atob(cleanBase64)));
         const data = JSON.parse(decodedContent);
         
         setTasks(data.tasks || []);
         setWeeklyStats(data.weeklyStats || []);
+        
       } catch (err) {
-        console.error("Failed to load real-time data", err);
+        console.warn("Real-time API failed, automatically falling back to CDN...", err);
+        
+        // 关键修复 2：降级方案（双保险）。如果 API 挂了，立刻回退到 CDN 获取
+        fetch(`https://raw.githubusercontent.com/${process.env.NEXT_PUBLIC_REPO_OWNER}/${process.env.NEXT_PUBLIC_REPO_NAME}/main/data/database.json?t=${Date.now()}`)
+          .then(res => res.json())
+          .then(data => {
+            setTasks(data.tasks || []);
+            setWeeklyStats(data.weeklyStats || []);
+          })
+          .catch(fallbackErr => console.error("Fatal: Both API and CDN failed to load data", fallbackErr));
       }
     };
 
     fetchRealTimeData();
   }, []);
-
   const completedCount = tasks.filter(t => t.completed).length;
   const totalCount = tasks.length;
   const completionPercentage = totalCount === 0 ? 0 : Math.round((completedCount / totalCount) * 100);
