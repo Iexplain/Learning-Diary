@@ -3,18 +3,22 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Check, X, Plus, RefreshCw } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
-import initialData from '@/data/database.json';
+
 import { saveToGithub } from '@/lib/github';
 
 export default function Dashboard() {
-  const [tasks, setTasks] = useState(initialData.tasks);
+  const [tasks, setTasks] = useState([]);
   const [newTaskText, setNewTaskText] = useState('');
   const [isSyncing, setIsSyncing] = useState(false);
   const [currentDate, setCurrentDate] = useState('');
 
   useEffect(() => {
-    setCurrentDate(new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' }));
-  }, []);
+  // 页面加载时实时获取最新数据，加上时间戳防止浏览器缓存
+  fetch(`https://raw.githubusercontent.com/${process.env.NEXT_PUBLIC_REPO_OWNER}/${process.env.NEXT_PUBLIC_REPO_NAME}/main/data/database.json?t=${Date.now()}`)
+    .then(res => res.json())
+    .then(data => setTasks(data.tasks))
+    .catch(err => console.error("Failed to load initial data", err));
+}, []);
 
   const completedCount = tasks.filter(t => t.completed).length;
   const totalCount = tasks.length;
