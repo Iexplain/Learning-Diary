@@ -8,7 +8,7 @@
     {
       "id": "1774064596328",
       "text": "学习微调指令（vllm & ms-swift）",
-      "completed": false
+      "completed": true
     },
     {
       "id": "1774064912286",
@@ -39,7 +39,7 @@
     },
     {
       "name": "Sat",
-      "completion": 33
+      "completion": 67
     },
     {
       "name": "Sun",
