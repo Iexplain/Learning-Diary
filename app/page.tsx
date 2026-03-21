@@ -16,9 +16,21 @@ interface WeeklyStat {
   completion: number;
 }
 
+// 防线：健康的默认数据模板，防止图表因空数组而崩溃消失
+const DEFAULT_WEEKLY_STATS: WeeklyStat[] = [
+  { name: 'Mon', completion: 0 },
+  { name: 'Tue', completion: 0 },
+  { name: 'Wed', completion: 0 },
+  { name: 'Thu', completion: 0 },
+  { name: 'Fri', completion: 0 },
+  { name: 'Sat', completion: 0 },
+  { name: 'Sun', completion: 0 }
+];
+
 export default function Dashboard() {
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [weeklyStats, setWeeklyStats] = useState<WeeklyStat[]>([]);
+  // 初始化时就带上模板，以防万一
+  const [weeklyStats, setWeeklyStats] = useState<WeeklyStat[]>(DEFAULT_WEEKLY_STATS);
   
   const [newTaskText, setNewTaskText] = useState('');
   const [isSyncing, setIsSyncing] = useState(false);
@@ -27,40 +39,43 @@ export default function Dashboard() {
   useEffect(() => {
     setCurrentDate(new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' }));
     
+    // 核心改进：双保险拉取实时数据
     const fetchRealTimeData = async () => {
       try {
         const GITHUB_TOKEN = typeof window !== 'undefined' ? localStorage.getItem('GITHUB_PAT') : null;
         const headers: HeadersInit = {
           'Accept': 'application/vnd.github.v3+json',
-          'Cache-Control': 'no-cache'
+          'Cache-Control': 'no-cache' // 强烈要求不使用缓存
         };
         if (GITHUB_TOKEN) {
           headers['Authorization'] = `Bearer ${GITHUB_TOKEN}`;
         }
 
+        // 优先请求 GitHub 实时 API
         const res = await fetch(`https://api.github.com/repos/${process.env.NEXT_PUBLIC_REPO_OWNER}/${process.env.NEXT_PUBLIC_REPO_NAME}/contents/data/database.json`, { headers });
         
         if (!res.ok) throw new Error(`API failed with status ${res.status}`);
 
         const fileData = await res.json();
         
-        // 关键修复 1：剔除 GitHub 返回数据中携带的换行符，防止 atob 崩溃
+        // 清理 Base64 中的换行符并解码
         const cleanBase64 = fileData.content.replace(/\n/g, '');
         const decodedContent = decodeURIComponent(escape(atob(cleanBase64)));
         const data = JSON.parse(decodedContent);
         
         setTasks(data.tasks || []);
-        setWeeklyStats(data.weeklyStats || []);
+        // 判断如果云端数据丢失，则使用健康模板
+        setWeeklyStats(data.weeklyStats?.length > 0 ? data.weeklyStats : DEFAULT_WEEKLY_STATS);
         
       } catch (err) {
         console.warn("Real-time API failed, automatically falling back to CDN...", err);
         
-        // 关键修复 2：降级方案（双保险）。如果 API 挂了，立刻回退到 CDN 获取
+        // 降级方案：如果 API 失败（如频次超限），回退到 CDN
         fetch(`https://raw.githubusercontent.com/${process.env.NEXT_PUBLIC_REPO_OWNER}/${process.env.NEXT_PUBLIC_REPO_NAME}/main/data/database.json?t=${Date.now()}`)
           .then(res => res.json())
           .then(data => {
             setTasks(data.tasks || []);
-            setWeeklyStats(data.weeklyStats || []);
+            setWeeklyStats(data.weeklyStats?.length > 0 ? data.weeklyStats : DEFAULT_WEEKLY_STATS);
           })
           .catch(fallbackErr => console.error("Fatal: Both API and CDN failed to load data", fallbackErr));
       }
@@ -68,6 +83,8 @@ export default function Dashboard() {
 
     fetchRealTimeData();
   }, []);
+
+  // 顶部进度条数据计算
   const completedCount = tasks.filter(t => t.completed).length;
   const totalCount = tasks.length;
   const completionPercentage = totalCount === 0 ? 0 : Math.round((completedCount / totalCount) * 100);
@@ -80,25 +97,23 @@ export default function Dashboard() {
     setIsSyncing(false);
   };
 
-  // 核心新增：统一的数据更新管道
+  // 统一的数据更新和自动统计管道
   const handleUpdateTasks = (newTasks: Task[]) => {
-    // 1. 更新任务列表状态
     setTasks(newTasks);
 
-    // 2. 重新计算当前的新完成率
+    // 重新计算当天的完成率
     const newCompletedCount = newTasks.filter(t => t.completed).length;
     const newTotalCount = newTasks.length;
     const newPercentage = newTotalCount === 0 ? 0 : Math.round((newCompletedCount / newTotalCount) * 100);
 
-    // 3. 获取今天是星期几（自动生成 "Mon", "Tue" 等格式）
+    // 获取今天是星期几（如 "Mon", "Tue"）
     const todayShort = new Date().toLocaleDateString('en-US', { weekday: 'short' });
 
-    // 4. 遍历折线图数据，精确更新今天的值，其他天数保持不变
+    // 更新图表数据
     const newStats = weeklyStats.map(stat => 
       stat.name === todayShort ? { ...stat, completion: newPercentage } : stat
     );
 
-    // 5. 更新折线图状态并启动云端同步
     setWeeklyStats(newStats);
     syncData(newTasks, newStats);
   };
@@ -107,17 +122,17 @@ export default function Dashboard() {
     if (!newTaskText.trim()) return;
     const newTasks = [...tasks, { id: Date.now().toString(), text: newTaskText, completed: false }];
     setNewTaskText('');
-    handleUpdateTasks(newTasks); // 调用统一管道
+    handleUpdateTasks(newTasks);
   };
 
   const toggleTask = (id: string) => {
     const newTasks = tasks.map(t => t.id === id ? { ...t, completed: !t.completed } : t);
-    handleUpdateTasks(newTasks); // 调用统一管道
+    handleUpdateTasks(newTasks);
   };
 
   const deleteTask = (id: string) => {
     const newTasks = tasks.filter(t => t.id !== id);
-    handleUpdateTasks(newTasks); // 调用统一管道
+    handleUpdateTasks(newTasks);
   };
 
   return (
@@ -127,7 +142,7 @@ export default function Dashboard() {
         {/* Header */}
         <header className="flex justify-between items-center bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
           <div>
-            <h1 className="text-2xl font-semibold tracking-tight">Learning-Diary</h1>
+            <h1 className="text-2xl font-semibold tracking-tight">Learning Diary</h1>
             <p className="text-gray-400 text-sm mt-1">{currentDate}</p>
           </div>
           <div className="flex flex-col items-end w-48">
