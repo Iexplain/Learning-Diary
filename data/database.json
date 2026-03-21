@@ -8,7 +8,7 @@
     {
       "id": "1774064535503",
       "text": "每日文献5分钟速度",
-      "completed": false
+      "completed": true
     }
   ],
   "weeklyStats": [
@@ -34,7 +34,7 @@
     },
     {
       "name": "Sat",
-      "completion": 0
+      "completion": 50
     },
     {
       "name": "Sun",
