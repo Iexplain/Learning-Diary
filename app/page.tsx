@@ -27,14 +27,36 @@ export default function Dashboard() {
   useEffect(() => {
     setCurrentDate(new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' }));
     
-    // 页面加载时实时获取最新数据
-    fetch(`https://raw.githubusercontent.com/${process.env.NEXT_PUBLIC_REPO_OWNER}/${process.env.NEXT_PUBLIC_REPO_NAME}/main/data/database.json?t=${Date.now()}`)
-      .then(res => res.json())
-      .then(data => {
+    // 改为使用 GitHub API 拉取实时数据，彻底绕过 CDN 5分钟缓存
+    const fetchRealTimeData = async () => {
+      try {
+        // 如果本地存了 Token，带上它可以提高请求上限（避免被限制）
+        const GITHUB_TOKEN = typeof window !== 'undefined' ? localStorage.getItem('GITHUB_PAT') : null;
+        const headers: HeadersInit = {
+          'Accept': 'application/vnd.github.v3+json',
+          'Cache-Control': 'no-cache'
+        };
+        if (GITHUB_TOKEN) {
+          headers['Authorization'] = `Bearer ${GITHUB_TOKEN}`;
+        }
+
+        const res = await fetch(`https://api.github.com/repos/${process.env.NEXT_PUBLIC_REPO_OWNER}/${process.env.NEXT_PUBLIC_REPO_NAME}/contents/data/database.json`, { headers });
+        
+        if (!res.ok) throw new Error("API request failed");
+
+        const fileData = await res.json();
+        // GitHub API 返回的文件内容是 Base64 编码的，需要解码回 JSON 字符串
+        const decodedContent = decodeURIComponent(escape(atob(fileData.content)));
+        const data = JSON.parse(decodedContent);
+        
         setTasks(data.tasks || []);
         setWeeklyStats(data.weeklyStats || []);
-      })
-      .catch(err => console.error("Failed to load initial data", err));
+      } catch (err) {
+        console.error("Failed to load real-time data", err);
+      }
+    };
+
+    fetchRealTimeData();
   }, []);
 
   const completedCount = tasks.filter(t => t.completed).length;
