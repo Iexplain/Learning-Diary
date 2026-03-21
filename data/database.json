@@ -19,23 +19,23 @@
   "weeklyStats": [
     {
       "name": "Mon",
-      "completion": 60
+      "completion": 0
     },
     {
       "name": "Tue",
-      "completion": 100
+      "completion": 0
     },
     {
       "name": "Wed",
-      "completion": 80
+      "completion": 0
     },
     {
       "name": "Thu",
-      "completion": 100
+      "completion": 0
     },
     {
       "name": "Fri",
-      "completion": 40
+      "completion": 0
     },
     {
       "name": "Sat",
