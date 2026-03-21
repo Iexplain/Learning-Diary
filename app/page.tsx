@@ -1,34 +1,55 @@
 // app/page.tsx
 'use client';
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { Check, X, Plus, RefreshCw } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
-
 import { saveToGithub } from '@/lib/github';
 
+// 1. 定义数据的 TypeScript 类型
+interface Task {
+  id: string;
+  text: string;
+  completed: boolean;
+}
+
+interface WeeklyStat {
+  name: string;
+  completion: number;
+}
+
 export default function Dashboard() {
-  const [tasks, setTasks] = useState([]);
+  // 2. 加上泛型 <Task[]> 和 <WeeklyStat[]>，明确告诉 TS 数组里的内容
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [weeklyStats, setWeeklyStats] = useState<WeeklyStat[]>([]);
+  
   const [newTaskText, setNewTaskText] = useState('');
   const [isSyncing, setIsSyncing] = useState(false);
   const [currentDate, setCurrentDate] = useState('');
 
   useEffect(() => {
-  // 页面加载时实时获取最新数据，加上时间戳防止浏览器缓存
-  fetch(`https://raw.githubusercontent.com/${process.env.NEXT_PUBLIC_REPO_OWNER}/${process.env.NEXT_PUBLIC_REPO_NAME}/main/data/database.json?t=${Date.now()}`)
-    .then(res => res.json())
-    .then(data => setTasks(data.tasks))
-    .catch(err => console.error("Failed to load initial data", err));
-}, []);
+    setCurrentDate(new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' }));
+    
+    // 页面加载时实时获取最新数据
+    fetch(`https://raw.githubusercontent.com/${process.env.NEXT_PUBLIC_REPO_OWNER}/${process.env.NEXT_PUBLIC_REPO_NAME}/main/data/database.json?t=${Date.now()}`)
+      .then(res => res.json())
+      .then(data => {
+        // 同时更新 tasks 和 weeklyStats
+        setTasks(data.tasks || []);
+        setWeeklyStats(data.weeklyStats || []);
+      })
+      .catch(err => console.error("Failed to load initial data", err));
+  }, []);
 
   const completedCount = tasks.filter(t => t.completed).length;
   const totalCount = tasks.length;
   const completionPercentage = totalCount === 0 ? 0 : Math.round((completedCount / totalCount) * 100);
 
   // 触发保存到 GitHub
-  const syncData = async (updatedTasks: any) => {
+  const syncData = async (updatedTasks: Task[]) => {
     setIsSyncing(true);
-    const success = await saveToGithub({ tasks: updatedTasks, weeklyStats: initialData.weeklyStats });
-    if (!success) alert("Sync failed. Check your GitHub Token permissions.");
+    // 3. 修复了原来报错的 initialData.weeklyStats，改用状态里的 weeklyStats
+    const success = await saveToGithub({ tasks: updatedTasks, weeklyStats: weeklyStats });
+    if (!success) alert("Sync failed. Check your network or GitHub Token permissions.");
     setIsSyncing(false);
   };
 
@@ -78,7 +99,7 @@ export default function Dashboard() {
         </header>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {/* Daily Focus - 占据左侧和中间 */}
+          {/* Daily Focus */}
           <div className="md:col-span-2 space-y-4">
             <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
               <h2 className="text-lg font-medium mb-4 text-gray-700">Daily Focus</h2>
@@ -124,7 +145,8 @@ export default function Dashboard() {
               <h2 className="text-lg font-medium mb-4 text-gray-700">Weekly Analytics</h2>
               <div className="h-48 w-full mt-4">
                 <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={initialData.weeklyStats} margin={{ top: 5, right: 20, left: -20, bottom: 0 }}>
+                  {/* 4. 修复：这里的 data 改为使用 state 里的 weeklyStats */}
+                  <LineChart data={weeklyStats} margin={{ top: 5, right: 20, left: -20, bottom: 0 }}>
                     <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#9CA3AF', fontSize: 12}} dy={10} />
                     <YAxis 
                       domain={[0, 100]} 
@@ -142,7 +164,7 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* Yearly Archive - 占据右侧 */}
+          {/* Yearly Archive */}
           <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 h-fit">
             <h2 className="text-lg font-medium mb-4 text-gray-700">Yearly Archive</h2>
             <div className="flex flex-wrap gap-2">
