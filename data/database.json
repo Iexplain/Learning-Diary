@@ -1,10 +1,33 @@
 {
-  "tasks": [
+  "tasks": [],
+  "weeklyStats": [
     {
-      "id": "1774065951261",
-      "text": "文献速读",
-      "completed": true
+      "name": "Mon",
+      "completion": 0
+    },
+    {
+      "name": "Tue",
+      "completion": 0
+    },
+    {
+      "name": "Wed",
+      "completion": 0
+    },
+    {
+      "name": "Thu",
+      "completion": 0
+    },
+    {
+      "name": "Fri",
+      "completion": 0
+    },
+    {
+      "name": "Sat",
+      "completion": 0
+    },
+    {
+      "name": "Sun",
+      "completion": 0
     }
-  ],
-  "weeklyStats": []
+  ]
 }
