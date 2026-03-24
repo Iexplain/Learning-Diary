@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { Check, X, Plus, RefreshCw } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { saveToGithub } from '@/lib/github';
+import initialData from '@/data/database.json';
 
 interface Task {
   id: string;
