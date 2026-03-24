@@ -8,7 +8,7 @@
     {
       "id": "1774320720338",
       "text": "按K或P rank分类，看绛维聚类能否分开",
-      "completed": false
+      "completed": true
     }
   ],
   "weeklyStats": [
@@ -18,7 +18,7 @@
     },
     {
       "name": "Tue",
-      "completion": 50
+      "completion": 100
     },
     {
       "name": "Wed",
@@ -40,9 +40,5 @@
       "name": "Sun",
       "completion": 0
     }
-  ],
-  "archives": [
-    "Mar 23, 2026",
-    "Mar 22, 2026"
   ]
 }
