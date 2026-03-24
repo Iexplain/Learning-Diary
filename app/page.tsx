@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import { Check, X, Plus, RefreshCw } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { saveToGithub } from '@/lib/github';
-import initialData from '@/data/database.json';
 
 interface Task {
   id: string;
@@ -143,7 +142,7 @@ export default function Dashboard() {
         {/* Header */}
         <header className="flex justify-between items-center bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
           <div>
-            <h1 className="text-2xl font-semibold tracking-tight">Learning Diary</h1>
+            <h1 className="text-2xl font-semibold tracking-tight">Lin An's Digital Space</h1>
             <p className="text-gray-400 text-sm mt-1">{currentDate}</p>
           </div>
           <div className="flex flex-col items-end w-48">
@@ -230,7 +229,7 @@ export default function Dashboard() {
           <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 h-fit">
             <h2 className="text-lg font-medium mb-4 text-gray-700">Yearly Archive</h2>
             <div className="flex flex-wrap gap-2">
-              {(initialData.archives || []).map((date) => (
+              {['Mar 19, 2026', 'Mar 18, 2026', 'Mar 17, 2026'].map((date) => (
                 <a key={date} href="#" className="px-4 py-2 bg-gray-50 hover:bg-[#8A9A8B] hover:text-white border border-gray-100 text-gray-500 text-sm rounded-full transition-colors cursor-pointer">
                   {date}
                 </a>
