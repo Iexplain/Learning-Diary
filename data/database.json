@@ -3,7 +3,7 @@
     {
       "id": "1774315697108",
       "text": "每日文献速读5分钟",
-      "completed": false
+      "completed": true
     }
   ],
   "weeklyStats": [
@@ -13,7 +13,7 @@
     },
     {
       "name": "Tue",
-      "completion": 0
+      "completion": 100
     },
     {
       "name": "Wed",
