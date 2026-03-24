@@ -1,0 +1,33 @@
+name: Daily Archive & Task Reset
+
+on:
+  schedule:
+    # 每天 UTC 时间 16:10 触发 (对应北京/新加坡时间 00:10 午夜刚过)
+    - cron: '10 16 * * *'
+  workflow_dispatch: # 允许你随时在网页上点按钮手动测试运行
+
+jobs:
+  run-python-script:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          # 使用你的专属 Token，这样脚本修改完文件后才有权限推送回仓库
+          token: ${{ secrets.NEXT_PUBLIC_GITHUB_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Run Archive Script
+        run: python scripts/daily_archive.py
+
+      - name: Commit and Push changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/database.json
+          git commit -m "chore: auto-archive and reset daily tasks [skip ci]" || exit 0
+          git push
