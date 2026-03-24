@@ -19,6 +19,11 @@
       "id": "1774345237563",
       "text": "准备周四汇报的文献",
       "completed": false
+    },
+    {
+      "id": "1774345815099",
+      "text": "hclust分类：给每个样本打上标签（cluster 1/2）",
+      "completed": false
     }
   ],
   "weeklyStats": [
@@ -28,7 +33,7 @@
     },
     {
       "name": "Tue",
-      "completion": 75
+      "completion": 60
     },
     {
       "name": "Wed",
