@@ -1,4 +1,3 @@
-// app/page.tsx
 'use client';
 import { useState, useEffect } from 'react';
 import { Check, X, Plus, RefreshCw } from 'lucide-react';
@@ -16,28 +15,21 @@ interface WeeklyStat {
   completion: number;
 }
 
-// 新增：归档数据接口
 interface Archive {
   date: string;
   tasks: Task[];
 }
 
 const DEFAULT_WEEKLY_STATS: WeeklyStat[] = [
-  { name: 'Mon', completion: 0 },
-  { name: 'Tue', completion: 0 },
-  { name: 'Wed', completion: 0 },
-  { name: 'Thu', completion: 0 },
-  { name: 'Fri', completion: 0 },
-  { name: 'Sat', completion: 0 },
-  { name: 'Sun', completion: 0 }
+  { name: 'Mon', completion: 0 }, { name: 'Tue', completion: 0 },
+  { name: 'Wed', completion: 0 }, { name: 'Thu', completion: 0 },
+  { name: 'Fri', completion: 0 }, { name: 'Sat', completion: 0 }, { name: 'Sun', completion: 0 }
 ];
 
 export default function Dashboard() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [weeklyStats, setWeeklyStats] = useState<WeeklyStat[]>(DEFAULT_WEEKLY_STATS);
-  // 新增：存储归档列表和当前点击查看的归档
   const [archives, setArchives] = useState<Archive[]>([]);
-  const [selectedArchive, setSelectedArchive] = useState<Archive | null>(null);
   
   const [newTaskText, setNewTaskText] = useState('');
   const [isSyncing, setIsSyncing] = useState(false);
@@ -65,11 +57,9 @@ export default function Dashboard() {
         
         setTasks(data.tasks || []);
         setWeeklyStats(data.weeklyStats?.length > 0 ? data.weeklyStats : DEFAULT_WEEKLY_STATS);
-        // 读取归档数据
         setArchives(data.archives || []);
         
       } catch (err) {
-        console.warn("API failed, falling back to CDN...");
         fetch(`https://raw.githubusercontent.com/${process.env.NEXT_PUBLIC_REPO_OWNER}/${process.env.NEXT_PUBLIC_REPO_NAME}/main/data/database.json?t=${Date.now()}`)
           .then(res => res.json())
           .then(data => {
@@ -77,7 +67,7 @@ export default function Dashboard() {
             setWeeklyStats(data.weeklyStats?.length > 0 ? data.weeklyStats : DEFAULT_WEEKLY_STATS);
             setArchives(data.archives || []);
           })
-          .catch(e => console.error("Fatal Load Error", e));
+          .catch(e => console.error("Load Error", e));
       }
     };
     fetchRealTimeData();
@@ -89,7 +79,6 @@ export default function Dashboard() {
 
   const syncData = async (updatedTasks: Task[], updatedStats: WeeklyStat[]) => {
     setIsSyncing(true);
-    // 归档数据不需要前端回传，前端只读，归档写入由 Python 脚本半夜执行
     await saveToGithub({ tasks: updatedTasks, weeklyStats: updatedStats, archives: archives });
     setIsSyncing(false);
   };
@@ -113,43 +102,13 @@ export default function Dashboard() {
   const deleteTask = (id: string) => handleUpdateTasks(tasks.filter(t => t.id !== id));
 
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-800 p-8 font-sans relative">
-      
-      {/* 历史记录弹窗 (Modal) */}
-      {selectedArchive && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-all">
-          <div className="bg-white rounded-3xl p-8 w-full max-w-lg shadow-2xl border border-gray-100">
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="text-xl font-semibold text-gray-800">{selectedArchive.date} Archive</h3>
-              <button onClick={() => setSelectedArchive(null)} className="text-gray-400 hover:text-gray-600 transition-colors bg-gray-50 hover:bg-gray-100 p-2 rounded-full">
-                <X size={20} />
-              </button>
-            </div>
-            <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-2">
-              {selectedArchive.tasks.length === 0 ? (
-                 <p className="text-gray-400 text-center py-8">当天没有记录任何任务。</p>
-              ) : (
-                selectedArchive.tasks.map(task => (
-                  <div key={task.id} className="flex items-center gap-4 p-4 bg-gray-50/50 border border-gray-100 rounded-2xl">
-                    <div className={`w-5 h-5 rounded flex items-center justify-center border ${task.completed ? 'bg-[#8A9A8B] border-[#8A9A8B]' : 'border-gray-300'}`}>
-                      {task.completed && <Check size={12} className="text-white" />}
-                    </div>
-                    <span className={`text-sm ${task.completed ? 'line-through text-gray-400' : 'text-gray-700'}`}>
-                      {task.text}
-                    </span>
-                  </div>
-                ))
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-
+    <div className="min-h-screen bg-gray-50 text-gray-800 p-8 font-sans">
       <div className="max-w-4xl mx-auto space-y-8">
-        {/* Header (保持不变) */}
+        
+        {/* Header */}
         <header className="flex justify-between items-center bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
           <div>
-            <h1 className="text-2xl font-semibold tracking-tight">Learning Diary</h1>
+            <h1 className="text-2xl font-semibold tracking-tight">Lin An's Digital Space</h1>
             <p className="text-gray-400 text-sm mt-1">{currentDate}</p>
           </div>
           <div className="flex flex-col items-end w-48">
@@ -165,7 +124,8 @@ export default function Dashboard() {
         </header>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {/* Daily Focus & Analytics (保持不变) */}
+          
+          {/* 左侧：Daily Focus & Analytics */}
           <div className="md:col-span-2 space-y-4">
             <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
               <h2 className="text-lg font-medium mb-4 text-gray-700">Daily Focus</h2>
@@ -207,21 +167,51 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* 动态 Yearly Archive (修改为交互式) */}
+          {/* 右侧：具有悬浮交互的 Yearly Archive */}
           <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 h-fit">
             <h2 className="text-lg font-medium mb-4 text-gray-700">Recent Archives</h2>
-            <div className="flex flex-wrap gap-2">
-              {archives.map((archive) => (
-                <button 
-                  key={archive.date} 
-                  onClick={() => setSelectedArchive(archive)}
-                  className="px-4 py-2 bg-gray-50 hover:bg-[#8A9A8B] hover:text-white border border-gray-100 text-gray-500 text-sm rounded-full transition-colors cursor-pointer"
-                >
-                  {archive.date}
-                </button>
-              ))}
+            <div className="flex flex-col gap-3">
+              {archives.map((archive) => {
+                const dayCompleted = archive.tasks.filter(t => t.completed).length;
+                const dayTotal = archive.tasks.length;
+                const dayPercentage = dayTotal === 0 ? 0 : Math.round((dayCompleted / dayTotal) * 100);
+
+                return (
+                  <div key={archive.date} className="group relative inline-block">
+                    {/* 触发器：日期按钮 */}
+                    <button className="w-full text-left px-4 py-2 bg-gray-50 group-hover:bg-[#8A9A8B] group-hover:text-white border border-gray-100 text-gray-500 text-sm rounded-full transition-all duration-300 cursor-default">
+                      {archive.date}
+                    </button>
+
+                    {/* 悬浮弹窗 (Popover) */}
+                    <div className="absolute right-full top-0 mr-4 w-72 bg-white rounded-2xl shadow-xl border border-[#8A9A8B]/20 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 p-5 pointer-events-none transform translate-x-2 group-hover:translate-x-0">
+                      <h3 className="text-sm font-semibold text-[#8A9A8B] mb-3">Tasks for {archive.date}</h3>
+                      <div className="space-y-3 max-h-[300px] overflow-y-auto pr-1">
+                        {archive.tasks.length === 0 ? (
+                          <p className="text-xs text-gray-400 italic">No tasks recorded.</p>
+                        ) : (
+                          archive.tasks.map(task => (
+                            <div key={task.id} className="flex items-start gap-3">
+                              <div className={`mt-0.5 w-4 h-4 rounded flex-shrink-0 flex items-center justify-center border ${task.completed ? 'bg-[#8A9A8B] border-[#8A9A8B]' : 'border-gray-300'}`}>
+                                {task.completed && <Check size={10} className="text-white" />}
+                              </div>
+                              <span className={`text-xs leading-relaxed ${task.completed ? 'line-through text-[#8A9A8B]' : 'text-gray-600'}`}>
+                                {task.text}
+                              </span>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                      <div className="mt-4 pt-3 border-t border-gray-100 text-xs text-gray-400 text-right font-medium">
+                        {dayPercentage}% Complete
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
+
         </div>
       </div>
     </div>
