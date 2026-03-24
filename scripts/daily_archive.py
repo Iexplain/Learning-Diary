@@ -26,33 +26,35 @@ def run_archive():
     weekly_stats.append({"name": today_name, "completion": completion_rate})
     data['weeklyStats'] = weekly_stats
 
-    # 2. 核心修改：打包保存今天的详细任务，并仅保留近 7 天
+    # 2. 核心打包：存储今天的详细任务字典，并限制最近 7 天
     archives = data.get('archives', [])
     
     today_archive = {
         "date": today_date_str,
-        "tasks": tasks # 把今天所有的任务（包含已完成和未完成）存起来
+        "tasks": tasks # 完整保存今天所有的任务及其状态
     }
     
-    # 剔除可能重复的今天的数据
+    # 清理掉可能重复生成的今天的数据（防止多次运行脚本堆积）
     archives = [a for a in archives if type(a) == dict and a.get("date") != today_date_str]
     
+    # 插入最新数据到最前面
     archives.insert(0, today_archive)
     
-    # 限制归档长度为 7 天
+    # 强制截断，只保留 7 天
     if len(archives) > 7:
         archives = archives[:7]
         
     data['archives'] = archives
 
-    # 3. 清理已完成任务
+    # 3. 清空明天的看板（只保留今天没打勾的任务）
     new_tasks = [t for t in tasks if not t.get('completed', False)]
     data['tasks'] = new_tasks
 
+    # 覆写保存
     with open(FILE_PATH, 'w', encoding='utf-8') as f:
         json.dump(data, f, indent=2, ensure_ascii=False)
     
-    print(f"✅ 成功清算 {today_date_str} 的数据！今日完成率: {completion_rate}%")
+    print(f"成功归档 {today_date_str} 的数据并保存了任务明细！今日完成率: {completion_rate}%")
 
 if __name__ == "__main__":
     run_archive()
