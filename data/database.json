@@ -13,7 +13,7 @@
     {
       "id": "1774331095798",
       "text": "完善Learning Diary网页的功能，添加Yearly Archive的任务清单以及完成状态",
-      "completed": false
+      "completed": true
     }
   ],
   "weeklyStats": [
@@ -23,7 +23,7 @@
     },
     {
       "name": "Tue",
-      "completion": 67
+      "completion": 100
     },
     {
       "name": "Wed",
@@ -50,7 +50,11 @@
     {
       "date": "Mar 23, 2026",
       "tasks": [
-        { "id": "1", "text": "每日文献速读5分钟", "completed": true }
+        {
+          "id": "1",
+          "text": "每日文献速读5分钟",
+          "completed": true
+        }
       ]
     }
   ]
