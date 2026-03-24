@@ -45,5 +45,13 @@
       "name": "Sun",
       "completion": 0
     }
+  ],
+  "archives": [
+    {
+      "date": "Mar 23, 2026",
+      "tasks": [
+        { "id": "1", "text": "每日文献速读5分钟", "completed": true }
+      ]
+    }
   ]
 }
