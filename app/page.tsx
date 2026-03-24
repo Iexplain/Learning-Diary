@@ -229,7 +229,7 @@ export default function Dashboard() {
           <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 h-fit">
             <h2 className="text-lg font-medium mb-4 text-gray-700">Yearly Archive</h2>
             <div className="flex flex-wrap gap-2">
-              {['Mar 19, 2026', 'Mar 18, 2026', 'Mar 17, 2026'].map((date) => (
+              {(initialData.archives || []).map((date) => (
                 <a key={date} href="#" className="px-4 py-2 bg-gray-50 hover:bg-[#8A9A8B] hover:text-white border border-gray-100 text-gray-500 text-sm rounded-full transition-colors cursor-pointer">
                   {date}
                 </a>
