@@ -8,12 +8,17 @@
     {
       "id": "1774320720338",
       "text": "按K或P rank分类，看绛维聚类能否分开",
-      "completed": false
+      "completed": true
     },
     {
       "id": "1774331095798",
       "text": "完善Learning Diary网页的功能，添加Yearly Archive的任务清单以及完成状态",
       "completed": true
+    },
+    {
+      "id": "1774345237563",
+      "text": "准备周四汇报的文献",
+      "completed": false
     }
   ],
   "weeklyStats": [
@@ -23,7 +28,7 @@
     },
     {
       "name": "Tue",
-      "completion": 67
+      "completion": 75
     },
     {
       "name": "Wed",
