@@ -1,26 +1,12 @@
 {
   "tasks": [
     {
-      "id": "1774345815099",
-      "text": "hclust分类：给每个样本打上标签（cluster 1/2）",
-      "completed": true
-    },
-    {
       "id": "1774401506408",
       "text": "准备周四汇报的文献",
       "completed": false
-    },
-    {
-      "id": "1774402519731",
-      "text": "每日文献速读5分钟",
-      "completed": true
     }
   ],
   "weeklyStats": [
-    {
-      "name": "Mon",
-      "completion": 100
-    },
     {
       "name": "Tue",
       "completion": 75
@@ -44,9 +30,33 @@
     {
       "name": "Sun",
       "completion": 0
+    },
+    {
+      "name": "Thu",
+      "completion": 67
     }
   ],
   "archives": [
+    {
+      "date": "Mar 26, 2026",
+      "tasks": [
+        {
+          "id": "1774345815099",
+          "text": "hclust分类：给每个样本打上标签（cluster 1/2）",
+          "completed": true
+        },
+        {
+          "id": "1774401506408",
+          "text": "准备周四汇报的文献",
+          "completed": false
+        },
+        {
+          "id": "1774402519731",
+          "text": "每日文献速读5分钟",
+          "completed": true
+        }
+      ]
+    },
     {
       "date": "Mar 24, 2026",
       "tasks": [
