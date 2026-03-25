@@ -3,7 +3,7 @@
     {
       "id": "1774345815099",
       "text": "hclust分类：给每个样本打上标签（cluster 1/2）",
-      "completed": false
+      "completed": true
     },
     {
       "id": "1774401506408",
@@ -27,7 +27,7 @@
     },
     {
       "name": "Wed",
-      "completion": 33
+      "completion": 67
     },
     {
       "name": "Thu",
