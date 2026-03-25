@@ -13,6 +13,10 @@
   ],
   "weeklyStats": [
     {
+      "name": "Mon",
+      "completion": 0
+    },
+    {
       "name": "Tue",
       "completion": 75
     },
@@ -34,10 +38,6 @@
     },
     {
       "name": "Sun",
-      "completion": 0
-    },
-    {
-      "name": "Wed",
       "completion": 0
     }
   ],
