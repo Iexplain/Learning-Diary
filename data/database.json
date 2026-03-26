@@ -13,7 +13,7 @@
     {
       "id": "1774537042857",
       "text": "通读GNN原论文了解原理",
-      "completed": false
+      "completed": true
     }
   ],
   "weeklyStats": [
@@ -31,7 +31,7 @@
     },
     {
       "name": "Thu",
-      "completion": 67
+      "completion": 100
     },
     {
       "name": "Fri",
