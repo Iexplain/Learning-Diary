@@ -1,21 +1,5 @@
 {
-  "tasks": [
-    {
-      "id": "1774401506408",
-      "text": "准备周四汇报的文献",
-      "completed": true
-    },
-    {
-      "id": "1774513560921",
-      "text": "每日文献速读5分钟",
-      "completed": true
-    },
-    {
-      "id": "1774537042857",
-      "text": "通读GNN原论文了解原理",
-      "completed": true
-    }
-  ],
+  "tasks": [],
   "weeklyStats": [
     {
       "name": "Mon",
@@ -35,7 +19,7 @@
     },
     {
       "name": "Fri",
-      "completion": 0
+      "completion": 100
     },
     {
       "name": "Sat",
@@ -47,6 +31,26 @@
     }
   ],
   "archives": [
+    {
+      "date": "Mar 27, 2026",
+      "tasks": [
+        {
+          "id": "1774401506408",
+          "text": "准备周四汇报的文献",
+          "completed": true
+        },
+        {
+          "id": "1774513560921",
+          "text": "每日文献速读5分钟",
+          "completed": true
+        },
+        {
+          "id": "1774537042857",
+          "text": "通读GNN原论文了解原理",
+          "completed": true
+        }
+      ]
+    },
     {
       "date": "Mar 25, 2026",
       "tasks": [
