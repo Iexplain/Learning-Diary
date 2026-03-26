@@ -3,17 +3,38 @@
     {
       "id": "1774401506408",
       "text": "准备周四汇报的文献",
-      "completed": false
+      "completed": true
     }
   ],
   "weeklyStats": [
-    {"name": "Mon","completion": 100},
-    {"name": "Tue","completion": 75},
-    {"name": "Wed","completion": 67},
-    {"name": "Thu","completion": 0},
-    {"name": "Fri","completion": 0},
-    {"name": "Sat","completion": 0},
-    { "name": "Sun","completion": 0}
+    {
+      "name": "Tue",
+      "completion": 75
+    },
+    {
+      "name": "Wed",
+      "completion": 67
+    },
+    {
+      "name": "Thu",
+      "completion": 100
+    },
+    {
+      "name": "Fri",
+      "completion": 0
+    },
+    {
+      "name": "Sat",
+      "completion": 0
+    },
+    {
+      "name": "Sun",
+      "completion": 0
+    },
+    {
+      "name": "Thu",
+      "completion": 100
+    }
   ],
   "archives": [
     {
