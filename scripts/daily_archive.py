@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 
 # target_date 是我们要结算的“昨天”
 target_date = datetime.utcnow() + timedelta(hours=8) - timedelta(hours=1)
-# new_today 是已经迈入的“今天”
+# new_today 是刚刚迈入的“今天”
 new_today = datetime.utcnow() + timedelta(hours=8)
 
 target_name = target_date.strftime('%a') 
@@ -23,45 +23,56 @@ def run_archive():
     completed_tasks = sum(1 for t in tasks if t.get('completed', False))
     completion_rate = round((completed_tasks / total_tasks) * 100) if total_tasks > 0 else 0
 
-    # 1. 修复：彻底重构折线图逻辑
+    # 1. 彻底固定周一到周日的数组结构
     weekly_stats = data.get('weeklyStats', [])
+    default_stats = [
+        {"name": "Mon", "completion": 0}, {"name": "Tue", "completion": 0},
+        {"name": "Wed", "completion": 0}, {"name": "Thu", "completion": 0},
+        {"name": "Fri", "completion": 0}, {"name": "Sat", "completion": 0},
+        {"name": "Sun", "completion": 0}
+    ]
     
-    # 步骤A：结算昨天的最终完成率（从后往前找，防止名字重复导致改错）
-    for stat in reversed(weekly_stats):
+    # 强制校验：如果顺序乱了，直接重置为标准模板
+    if len(weekly_stats) != 7 or weekly_stats[0].get("name") != "Mon":
+        weekly_stats = default_stats
+
+    # 2. 结算昨天的任务完成率，填入对应的星期格子
+    for stat in weekly_stats:
         if stat.get("name") == target_name:
             stat["completion"] = completion_rate
             break
             
-    # 步骤B：为今天创建一个全新的起点 (0%)，让前端有目标可以更新
-    if not weekly_stats or weekly_stats[-1].get("name") != new_today_name:
-        weekly_stats.append({"name": new_today_name, "completion": 0})
-        
-    # 步骤C：永远只保留最近的 7 天，实现完美的滑动窗口
-    data['weeklyStats'] = weekly_stats[-7:]
+    # 3. 🌟 核心逻辑：如果跨入了周一，图表全部清零，迎接新的一周！
+    if new_today_name == 'Mon':
+        weekly_stats = [
+            {"name": "Mon", "completion": 0}, {"name": "Tue", "completion": 0},
+            {"name": "Wed", "completion": 0}, {"name": "Thu", "completion": 0},
+            {"name": "Fri", "completion": 0}, {"name": "Sat", "completion": 0},
+            {"name": "Sun", "completion": 0}
+        ]
 
-    # 2. 归档昨天的任务明细
+    data['weeklyStats'] = weekly_stats
+
+    # 4. 归档昨天的任务明细 (保持不变)
     archives = data.get('archives', [])
     target_archive = {
         "date": target_date_str,
         "tasks": tasks
     }
-    
     archives = [a for a in archives if type(a) == dict and a.get("date") != target_date_str]
     archives.insert(0, target_archive)
-    
     if len(archives) > 7:
         archives = archives[:7]
-        
     data['archives'] = archives
 
-    # 3. 清空看板（只保留没打勾的任务给今天）
+    # 5. 清空看板留给今天
     new_tasks = [t for t in tasks if not t.get('completed', False)]
     data['tasks'] = new_tasks
 
     with open(FILE_PATH, 'w', encoding='utf-8') as f:
         json.dump(data, f, indent=2, ensure_ascii=False)
     
-    print(f"✅ 成功归档 {target_date_str}！昨日完成率: {completion_rate}%，已为 {new_today_name} 初始化图表。")
+    print(f"✅ 归档 {target_date_str}！昨日完成率: {completion_rate}%，周视图已更新。")
 
 if __name__ == "__main__":
     run_archive()
