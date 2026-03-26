@@ -3,7 +3,7 @@
     {
       "id": "1774401506408",
       "text": "准备周四汇报的文献",
-      "completed": true
+      "completed": false
     },
     {
       "id": "1774513560921",
@@ -22,7 +22,7 @@
     },
     {
       "name": "Thu",
-      "completion": 50
+      "completion": 0
     },
     {
       "name": "Fri",
@@ -38,7 +38,7 @@
     },
     {
       "name": "Thu",
-      "completion": 50
+      "completion": 0
     }
   ],
   "archives": [
