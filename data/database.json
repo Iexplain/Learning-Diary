@@ -12,38 +12,17 @@
     }
   ],
   "weeklyStats": [
-    {
-      "name": "Tue",
-      "completion": 75
-    },
-    {
-      "name": "Wed",
-      "completion": 67
-    },
-    {
-      "name": "Thu",
-      "completion": 50
-    },
-    {
-      "name": "Fri",
-      "completion": 0
-    },
-    {
-      "name": "Sat",
-      "completion": 0
-    },
-    {
-      "name": "Sun",
-      "completion": 0
-    },
-    {
-      "name": "Thu",
-      "completion": 50
-    }
+    {"name": "Mon","completion": 100},
+    {"name": "Tue","completion": 75},
+    {"name": "Wed","completion": 67},
+    {"name": "Thu","completion": 0},
+    {"name": "Fri","completion": 0},
+    {"name": "Sat","completion": 0},
+    { "name": "Sun","completion": 0}
   ],
   "archives": [
     {
-      "date": "Mar 26, 2026",
+      "date": "Mar 25, 2026",
       "tasks": [
         {
           "id": "1774345815099",
