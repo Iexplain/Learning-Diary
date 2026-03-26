@@ -9,6 +9,11 @@
       "id": "1774513560921",
       "text": "每日文献速读5分钟",
       "completed": true
+    },
+    {
+      "id": "1774533270228",
+      "text": "通读GNN原论文，了解原理并用代码简单复现",
+      "completed": false
     }
   ],
   "weeklyStats": [
@@ -26,7 +31,7 @@
     },
     {
       "name": "Thu",
-      "completion": 100
+      "completion": 67
     },
     {
       "name": "Fri",
