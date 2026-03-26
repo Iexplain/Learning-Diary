@@ -9,16 +9,42 @@
       "id": "1774513560921",
       "text": "每日文献速读5分钟",
       "completed": true
+    },
+    {
+      "id": "1774519878685",
+      "text": "了解GNN原理并用代码简单复现",
+      "completed": false
     }
   ],
   "weeklyStats": [
-    { "name": "Mon", "completion": 100 },
-    { "name": "Tue", "completion": 75 },
-    { "name": "Wed", "completion": 67 },
-    { "name": "Thu", "completion": 0 },
-    { "name": "Fri", "completion": 0 },
-    { "name": "Sat", "completion": 0 },
-    { "name": "Sun", "completion": 0 }
+    {
+      "name": "Mon",
+      "completion": 100
+    },
+    {
+      "name": "Tue",
+      "completion": 75
+    },
+    {
+      "name": "Wed",
+      "completion": 67
+    },
+    {
+      "name": "Thu",
+      "completion": 67
+    },
+    {
+      "name": "Fri",
+      "completion": 0
+    },
+    {
+      "name": "Sat",
+      "completion": 0
+    },
+    {
+      "name": "Sun",
+      "completion": 0
+    }
   ],
   "archives": [
     {
