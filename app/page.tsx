@@ -85,9 +85,21 @@ export default function Dashboard() {
 
   const handleUpdateTasks = (newTasks: Task[]) => {
     setTasks(newTasks);
+    // 任务完成度计算逻辑依然精准
     const newPercentage = newTasks.length === 0 ? 0 : Math.round((newTasks.filter(t => t.completed).length / newTasks.length) * 100);
     const todayShort = new Date().toLocaleDateString('en-US', { weekday: 'short' });
-    const newStats = weeklyStats.map(stat => stat.name === todayShort ? { ...stat, completion: newPercentage } : stat);
+    
+    let currentStats = [...weeklyStats];
+    
+    // 核心容错：如果前端发现进入了新的一天，但图表最后一天还不是今天，自动补齐并平移
+    if (currentStats.length > 0 && currentStats[currentStats.length - 1].name !== todayShort) {
+      currentStats.push({ name: todayShort, completion: 0 });
+      if (currentStats.length > 7) currentStats.shift();
+    }
+
+    // 更新今天的完成度
+    const newStats = currentStats.map(stat => stat.name === todayShort ? { ...stat, completion: newPercentage } : stat);
+    
     setWeeklyStats(newStats);
     syncData(newTasks, newStats);
   };
