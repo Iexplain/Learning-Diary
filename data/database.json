@@ -14,11 +14,6 @@
       "id": "1774519878685",
       "text": "了解GNN原理并用代码简单复现",
       "completed": true
-    },
-    {
-      "id": "1774520037854",
-      "text": "每天一看 vibe-coding-cn",
-      "completed": false
     }
   ],
   "weeklyStats": [
@@ -36,7 +31,7 @@
     },
     {
       "name": "Thu",
-      "completion": 75
+      "completion": 100
     },
     {
       "name": "Fri",
