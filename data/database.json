@@ -14,6 +14,11 @@
       "id": "1774583867215",
       "text": "Read official document of LLaMa Factory",
       "completed": false
+    },
+    {
+      "id": "1774597661085",
+      "text": "Understand the principle of RAG",
+      "completed": false
     }
   ],
   "weeklyStats": [
@@ -35,7 +40,7 @@
     },
     {
       "name": "Fri",
-      "completion": 67
+      "completion": 50
     },
     {
       "name": "Sat",
