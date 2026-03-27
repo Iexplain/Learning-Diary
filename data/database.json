@@ -1,29 +1,9 @@
 {
   "tasks": [
     {
-      "id": "1774583700161",
-      "text": "5-minute quick reading of daily literature",
-      "completed": true
-    },
-    {
-      "id": "1774583761123",
-      "text": "Simple reproduction of GNN using PyTorch",
-      "completed": true
-    },
-    {
       "id": "1774583867215",
       "text": "Read official document of LLaMa Factory",
       "completed": false
-    },
-    {
-      "id": "1774597661085",
-      "text": "Understand the principle of RAG",
-      "completed": true
-    },
-    {
-      "id": "1774600607680",
-      "text": "technology of text vector retrieval: Siamese Encoder & Dual Encoder",
-      "completed": true
     }
   ],
   "weeklyStats": [
@@ -57,6 +37,36 @@
     }
   ],
   "archives": [
+    {
+      "date": "Mar 27, 2026",
+      "tasks": [
+        {
+          "id": "1774583700161",
+          "text": "5-minute quick reading of daily literature",
+          "completed": true
+        },
+        {
+          "id": "1774583761123",
+          "text": "Simple reproduction of GNN using PyTorch",
+          "completed": true
+        },
+        {
+          "id": "1774583867215",
+          "text": "Read official document of LLaMa Factory",
+          "completed": false
+        },
+        {
+          "id": "1774597661085",
+          "text": "Understand the principle of RAG",
+          "completed": true
+        },
+        {
+          "id": "1774600607680",
+          "text": "technology of text vector retrieval: Siamese Encoder & Dual Encoder",
+          "completed": true
+        }
+      ]
+    },
     {
       "date": "Mar 26, 2026",
       "tasks": [
