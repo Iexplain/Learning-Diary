@@ -9,6 +9,11 @@
       "id": "1774583761123",
       "text": "Simple reproduction of GNN using PyTorch",
       "completed": true
+    },
+    {
+      "id": "1774583867215",
+      "text": "Read official document of LLaMa Factory",
+      "completed": false
     }
   ],
   "weeklyStats": [
@@ -30,7 +35,7 @@
     },
     {
       "name": "Fri",
-      "completion": 100
+      "completion": 67
     },
     {
       "name": "Sat",
