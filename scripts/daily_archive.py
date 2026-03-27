@@ -2,10 +2,11 @@ import json
 import os
 from datetime import datetime, timedelta
 
-# target_date 是我们要结算的“昨天”
-target_date = datetime.utcnow() + timedelta(hours=8) - timedelta(hours=1)
-# new_today 是刚刚迈入的“今天”
+# 获取当前的东八区时间作为“今天”
 new_today = datetime.utcnow() + timedelta(hours=8)
+
+# 真正的“昨天”，永远比“今天”少 1 天，无论几点触发
+target_date = new_today - timedelta(days=1)
 
 target_name = target_date.strftime('%a') 
 new_today_name = new_today.strftime('%a')
