@@ -3,7 +3,7 @@
     {
       "id": "1774575966777",
       "text": "每日文献速读5分钟",
-      "completed": true
+      "completed": false
     },
     {
       "id": "1774575989432",
@@ -30,7 +30,7 @@
     },
     {
       "name": "Fri",
-      "completion": 100
+      "completion": 50
     },
     {
       "name": "Sat",
