@@ -1,5 +1,11 @@
 {
-  "tasks": [],
+  "tasks": [
+    {
+      "id": "1774575966777",
+      "text": "每日文献速读5分钟",
+      "completed": false
+    }
+  ],
   "weeklyStats": [
     {
       "name": "Mon",
@@ -19,7 +25,7 @@
     },
     {
       "name": "Fri",
-      "completion": 100
+      "completion": 0
     },
     {
       "name": "Sat",
