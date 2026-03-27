@@ -3,7 +3,7 @@
     {
       "id": "1774575989432",
       "text": "用Pytorch简单复现GNN",
-      "completed": true
+      "completed": false
     },
     {
       "id": "1774583700161",
@@ -30,7 +30,7 @@
     },
     {
       "name": "Fri",
-      "completion": 100
+      "completion": 50
     },
     {
       "name": "Sat",
