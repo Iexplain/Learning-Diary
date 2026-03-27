@@ -23,7 +23,7 @@
     {
       "id": "1774600607680",
       "text": "technology of text vector retrieval: Siamese Encoder & Dual Encoder",
-      "completed": false
+      "completed": true
     }
   ],
   "weeklyStats": [
@@ -45,7 +45,7 @@
     },
     {
       "name": "Fri",
-      "completion": 60
+      "completion": 80
     },
     {
       "name": "Sat",
