@@ -8,7 +8,7 @@
     {
       "id": "1774583761123",
       "text": "Simple reproduction of GNN using PyTorch",
-      "completed": false
+      "completed": true
     }
   ],
   "weeklyStats": [
@@ -30,7 +30,7 @@
     },
     {
       "name": "Fri",
-      "completion": 50
+      "completion": 100
     },
     {
       "name": "Sat",
