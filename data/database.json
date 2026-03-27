@@ -8,7 +8,7 @@
     {
       "id": "1774575989432",
       "text": "用Pytorch简单复现GNN",
-      "completed": false
+      "completed": true
     }
   ],
   "weeklyStats": [
@@ -30,7 +30,7 @@
     },
     {
       "name": "Fri",
-      "completion": 50
+      "completion": 100
     },
     {
       "name": "Sat",
