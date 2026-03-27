@@ -1,13 +1,13 @@
 {
   "tasks": [
     {
-      "id": "1774575966777",
-      "text": "每日文献速读5分钟",
-      "completed": false
-    },
-    {
       "id": "1774575989432",
       "text": "用Pytorch简单复现GNN",
+      "completed": true
+    },
+    {
+      "id": "1774583700161",
+      "text": "5-minute quick reading of daily literature",
       "completed": true
     }
   ],
@@ -30,7 +30,7 @@
     },
     {
       "name": "Fri",
-      "completion": 50
+      "completion": 100
     },
     {
       "name": "Sat",
