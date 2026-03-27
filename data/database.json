@@ -18,6 +18,11 @@
     {
       "id": "1774597661085",
       "text": "Understand the principle of RAG",
+      "completed": true
+    },
+    {
+      "id": "1774600607680",
+      "text": "technology of text vector retrieval: Siamese Encoder & Dual Encoder",
       "completed": false
     }
   ],
@@ -40,7 +45,7 @@
     },
     {
       "name": "Fri",
-      "completion": 50
+      "completion": 60
     },
     {
       "name": "Sat",
