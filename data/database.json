@@ -1,14 +1,14 @@
 {
   "tasks": [
     {
-      "id": "1774575989432",
-      "text": "用Pytorch简单复现GNN",
-      "completed": false
-    },
-    {
       "id": "1774583700161",
       "text": "5-minute quick reading of daily literature",
       "completed": true
+    },
+    {
+      "id": "1774583761123",
+      "text": "Simple reproduction of GNN using PyTorch",
+      "completed": false
     }
   ],
   "weeklyStats": [
