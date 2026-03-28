@@ -1,24 +1,12 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { Check, X, Plus, RefreshCw } from 'lucide-react';
+import { Check, X, Plus, RefreshCw, Archive as ArchiveIcon, Calendar, Loader2 } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
-import { saveToGithub } from '@/lib/github';
+import { saveToGithub, getHistoryMonths, getHistoryData } from '@/lib/github';
 
-interface Task {
-  id: string;
-  text: string;
-  completed: boolean;
-}
-
-interface WeeklyStat {
-  name: string;
-  completion: number;
-}
-
-interface Archive {
-  date: string;
-  tasks: Task[];
-}
+interface Task { id: string; text: string; completed: boolean; }
+interface WeeklyStat { name: string; completion: number; }
+interface Archive { date: string; completion_rate?: number; tasks: Task[]; }
 
 const DEFAULT_WEEKLY_STATS: WeeklyStat[] = [
   { name: 'Mon', completion: 0 }, { name: 'Tue', completion: 0 },
@@ -35,16 +23,20 @@ export default function Dashboard() {
   const [isSyncing, setIsSyncing] = useState(false);
   const [currentDate, setCurrentDate] = useState('');
 
+  // 历史时光机状态
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  const [historyMonths, setHistoryMonths] = useState<string[]>([]);
+  const [selectedMonth, setSelectedMonth] = useState<string | null>(null);
+  const [monthData, setMonthData] = useState<Archive[]>([]);
+  const [isLoadingHistory, setIsLoadingHistory] = useState(false);
+
   useEffect(() => {
     setCurrentDate(new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' }));
     
     const fetchRealTimeData = async () => {
       try {
         const GITHUB_TOKEN = typeof window !== 'undefined' ? localStorage.getItem('GITHUB_PAT') : null;
-        const headers: HeadersInit = {
-          'Accept': 'application/vnd.github.v3+json',
-          'Cache-Control': 'no-cache'
-        };
+        const headers: HeadersInit = { 'Accept': 'application/vnd.github.v3+json', 'Cache-Control': 'no-cache' };
         if (GITHUB_TOKEN) headers['Authorization'] = `Bearer ${GITHUB_TOKEN}`;
 
         const res = await fetch(`https://api.github.com/repos/${process.env.NEXT_PUBLIC_REPO_OWNER}/${process.env.NEXT_PUBLIC_REPO_NAME}/contents/data/database.json`, { headers });
@@ -56,7 +48,7 @@ export default function Dashboard() {
         const data = JSON.parse(decodedContent);
         
         setTasks(data.tasks || []);
-        setWeeklyStats(data.weeklyStats?.length > 0 ? data.weeklyStats : DEFAULT_WEEKLY_STATS);
+        setWeeklyStats(data.weeklyStats?.length === 7 ? data.weeklyStats : DEFAULT_WEEKLY_STATS);
         setArchives(data.archives || []);
         
       } catch (err) {
@@ -64,7 +56,7 @@ export default function Dashboard() {
           .then(res => res.json())
           .then(data => {
             setTasks(data.tasks || []);
-            setWeeklyStats(data.weeklyStats?.length > 0 ? data.weeklyStats : DEFAULT_WEEKLY_STATS);
+            setWeeklyStats(data.weeklyStats?.length === 7 ? data.weeklyStats : DEFAULT_WEEKLY_STATS);
             setArchives(data.archives || []);
           })
           .catch(e => console.error("Load Error", e));
@@ -88,7 +80,7 @@ export default function Dashboard() {
     const newPercentage = newTasks.length === 0 ? 0 : Math.round((newTasks.filter(t => t.completed).length / newTasks.length) * 100);
     const todayShort = new Date().toLocaleDateString('en-US', { weekday: 'short' });
     
-    // 🌟 核心修复：永远不改变数组顺序，精准定位今天的星期几并更新完成度
+    // 核心修复：永远焊死数组顺序，精准定位今天的格子更新数据
     const newStats = weeklyStats.map(stat => 
       stat.name === todayShort ? { ...stat, completion: newPercentage } : stat
     );
@@ -106,14 +98,122 @@ export default function Dashboard() {
   const toggleTask = (id: string) => handleUpdateTasks(tasks.map(t => t.id === id ? { ...t, completed: !t.completed } : t));
   const deleteTask = (id: string) => handleUpdateTasks(tasks.filter(t => t.id !== id));
 
+  // 时光机：打开并加载月份列表
+  const handleOpenHistory = async () => {
+    setIsHistoryOpen(true);
+    setIsLoadingHistory(true);
+    const months = await getHistoryMonths();
+    setHistoryMonths(months);
+    if (months.length > 0) {
+      handleSelectMonth(months[0]);
+    } else {
+      setIsLoadingHistory(false);
+    }
+  };
+
+  // 时光机：加载具体的月份数据
+  const handleSelectMonth = async (month: string) => {
+    setIsLoadingHistory(true);
+    setSelectedMonth(month);
+    const data = await getHistoryData(month);
+    setMonthData(data);
+    setIsLoadingHistory(false);
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-800 p-8 font-sans">
+    <div className="min-h-screen bg-gray-50 text-gray-800 p-8 font-sans relative">
+      
+      {/* 历史时光机弹窗 (Modal) */}
+      {isHistoryOpen && (
+        <div className="fixed inset-0 bg-gray-900/40 backdrop-blur-md flex items-center justify-center z-50 p-6 transition-all">
+          <div className="bg-white w-full max-w-5xl h-[85vh] rounded-3xl shadow-2xl border border-gray-100 flex flex-col overflow-hidden">
+            {/* 弹窗顶部栏 */}
+            <div className="flex justify-between items-center px-8 py-5 border-b border-gray-100 bg-gray-50/50">
+              <div className="flex items-center gap-3">
+                <ArchiveIcon className="text-[#8A9A8B]" size={24} />
+                <h2 className="text-xl font-semibold text-gray-800 tracking-tight">Time Machine Archive</h2>
+              </div>
+              <button onClick={() => setIsHistoryOpen(false)} className="text-gray-400 hover:text-gray-600 bg-white hover:bg-gray-100 p-2 rounded-full transition-colors border border-gray-200 shadow-sm">
+                <X size={20} />
+              </button>
+            </div>
+            
+            {/* 弹窗主体结构 */}
+            <div className="flex flex-1 overflow-hidden">
+              {/* 左侧：月份选择器 */}
+              <div className="w-64 bg-gray-50/30 border-r border-gray-100 p-6 overflow-y-auto">
+                <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4 px-2">Timeline</h3>
+                {historyMonths.length === 0 && !isLoadingHistory ? (
+                  <p className="text-sm text-gray-400 px-2 italic">No history recorded yet.</p>
+                ) : (
+                  <div className="space-y-2">
+                    {historyMonths.map(month => (
+                      <button 
+                        key={month} 
+                        onClick={() => handleSelectMonth(month)}
+                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${selectedMonth === month ? 'bg-[#8A9A8B] text-white shadow-md' : 'text-gray-600 hover:bg-white hover:shadow-sm border border-transparent hover:border-gray-200'}`}
+                      >
+                        <Calendar size={16} className={selectedMonth === month ? 'text-white/80' : 'text-gray-400'}/>
+                        {month}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* 右侧：月度数据流展示区 */}
+              <div className="flex-1 bg-white p-8 overflow-y-auto relative">
+                {isLoadingHistory ? (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center text-[#8A9A8B]">
+                    <Loader2 size={32} className="animate-spin mb-4" />
+                    <p className="text-sm font-medium">Decrypting history files...</p>
+                  </div>
+                ) : (
+                  <div className="max-w-3xl mx-auto space-y-10 pb-12">
+                    {monthData.map((dayData, index) => (
+                      <div key={index} className="relative pl-8 before:absolute before:left-0 before:top-2 before:bottom-0 before:w-px before:bg-gray-200">
+                        {/* 时间轴锚点 */}
+                        <div className="absolute left-[-4px] top-2 w-2 h-2 rounded-full bg-[#8A9A8B] ring-4 ring-white" />
+                        
+                        <div className="flex justify-between items-baseline mb-4">
+                          <h4 className="text-lg font-semibold text-gray-800">{dayData.date}</h4>
+                          <span className="text-xs font-bold px-3 py-1 bg-gray-100 text-[#8A9A8B] rounded-full">
+                            {dayData.completion_rate ?? 0}% Achieved
+                          </span>
+                        </div>
+                        
+                        <div className="grid grid-cols-1 gap-2 bg-gray-50/50 p-5 rounded-2xl border border-gray-100">
+                          {dayData.tasks.length === 0 ? (
+                            <p className="text-sm text-gray-400 italic">No tasks recorded on this day.</p>
+                          ) : (
+                            dayData.tasks.map(task => (
+                              <div key={task.id} className="flex items-start gap-3 p-2">
+                                <div className={`mt-0.5 w-4 h-4 rounded flex-shrink-0 flex items-center justify-center border ${task.completed ? 'bg-[#8A9A8B] border-[#8A9A8B]' : 'border-gray-300 bg-white'}`}>
+                                  {task.completed && <Check size={10} className="text-white" />}
+                                </div>
+                                <span className={`text-sm leading-relaxed ${task.completed ? 'line-through text-gray-400' : 'text-gray-700'}`}>
+                                  {task.text}
+                                </span>
+                              </div>
+                            ))
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 主控制面板 */}
       <div className="max-w-4xl mx-auto space-y-8">
         
-        {/* Header */}
         <header className="flex justify-between items-center bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
           <div>
-            <h1 className="text-2xl font-semibold tracking-tight">Learning Diary</h1>
+            <h1 className="text-2xl font-semibold tracking-tight">Lin An's Digital Space</h1>
             <p className="text-gray-400 text-sm mt-1">{currentDate}</p>
           </div>
           <div className="flex flex-col items-end w-48">
@@ -130,7 +230,7 @@ export default function Dashboard() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           
-          {/* 左侧：Daily Focus & Analytics */}
+          {/* 左侧主要区域 */}
           <div className="md:col-span-2 space-y-4">
             <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
               <h2 className="text-lg font-medium mb-4 text-gray-700">Daily Focus</h2>
@@ -172,24 +272,22 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* 右侧：具有悬浮交互的 Yearly Archive */}
-          <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 h-fit">
+          {/* 右侧归档区 */}
+          <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col h-full">
             <h2 className="text-lg font-medium mb-4 text-gray-700">Recent Archives</h2>
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-3 flex-1">
               {archives.map((archive) => {
                 const dayCompleted = archive.tasks.filter(t => t.completed).length;
                 const dayTotal = archive.tasks.length;
-                const dayPercentage = dayTotal === 0 ? 0 : Math.round((dayCompleted / dayTotal) * 100);
+                const dayPercentage = archive.completion_rate ?? (dayTotal === 0 ? 0 : Math.round((dayCompleted / dayTotal) * 100));
 
                 return (
                   <div key={archive.date} className="group relative inline-block">
-                    {/* 触发器：日期按钮 */}
                     <button className="w-full text-left px-4 py-2 bg-gray-50 group-hover:bg-[#8A9A8B] group-hover:text-white border border-gray-100 text-gray-500 text-sm rounded-full transition-all duration-300 cursor-default">
                       {archive.date}
                     </button>
 
-                    {/* 悬浮弹窗 (Popover) */}
-                    <div className="absolute right-full top-0 mr-4 w-72 bg-white rounded-2xl shadow-xl border border-[#8A9A8B]/20 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 p-5 pointer-events-none transform translate-x-2 group-hover:translate-x-0">
+                    <div className="absolute right-full top-0 mr-4 w-72 bg-white rounded-2xl shadow-xl border border-[#8A9A8B]/20 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-40 p-5 pointer-events-none transform translate-x-2 group-hover:translate-x-0">
                       <h3 className="text-sm font-semibold text-[#8A9A8B] mb-3">Tasks for {archive.date}</h3>
                       <div className="space-y-3 max-h-[300px] overflow-y-auto pr-1">
                         {archive.tasks.length === 0 ? (
@@ -215,6 +313,15 @@ export default function Dashboard() {
                 );
               })}
             </div>
+            
+            {/* 🌟 时光机入口按钮 */}
+            <button 
+              onClick={handleOpenHistory}
+              className="mt-6 w-full py-3 flex items-center justify-center gap-2 text-sm font-medium text-[#8A9A8B] border border-[#8A9A8B]/30 hover:bg-[#8A9A8B] hover:text-white rounded-xl transition-all shadow-sm"
+            >
+              <ArchiveIcon size={16} />
+              Explore Time Machine
+            </button>
           </div>
 
         </div>
