@@ -213,7 +213,7 @@ export default function Dashboard() {
         
         <header className="flex justify-between items-center bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
           <div>
-            <h1 className="text-2xl font-semibold tracking-tight">Lin An's Digital Space</h1>
+            <h1 className="text-2xl font-semibold tracking-tight">Learning Diary</h1>
             <p className="text-gray-400 text-sm mt-1">{currentDate}</p>
           </div>
           <div className="flex flex-col items-end w-48">
