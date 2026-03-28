@@ -28,6 +28,6 @@ jobs:
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/database.json
-          git commit -m "chore: auto-archive daily tasks" || exit 0
+          git add data/
+          git commit -m "chore: auto-archive tasks and update permanent history" || exit 0
           git push
