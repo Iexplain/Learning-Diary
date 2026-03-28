@@ -4,11 +4,6 @@
       "id": "1774583867215",
       "text": "Read official document of LLaMa Factory",
       "completed": false
-    },
-    {
-      "id": "1774666502757",
-      "text": "5-minute quick reading of daily literature",
-      "completed": true
     }
   ],
   "weeklyStats": [
@@ -42,6 +37,22 @@
     }
   ],
   "archives": [
+    {
+      "date": "Mar 28, 2026",
+      "completion_rate": 50,
+      "tasks": [
+        {
+          "id": "1774583867215",
+          "text": "Read official document of LLaMa Factory",
+          "completed": false
+        },
+        {
+          "id": "1774666502757",
+          "text": "5-minute quick reading of daily literature",
+          "completed": true
+        }
+      ]
+    },
     {
       "date": "Mar 27, 2026",
       "tasks": [
