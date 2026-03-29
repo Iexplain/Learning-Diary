@@ -9,27 +9,27 @@
   "weeklyStats": [
     {
       "name": "Mon",
-      "completion": 100
+      "completion": 0
     },
     {
       "name": "Tue",
-      "completion": 75
+      "completion": 0
     },
     {
       "name": "Wed",
-      "completion": 67
+      "completion": 0
     },
     {
       "name": "Thu",
-      "completion": 100
+      "completion": 0
     },
     {
       "name": "Fri",
-      "completion": 80
+      "completion": 0
     },
     {
       "name": "Sat",
-      "completion": 50
+      "completion": 0
     },
     {
       "name": "Sun",
@@ -37,6 +37,17 @@
     }
   ],
   "archives": [
+    {
+      "date": "Mar 29, 2026",
+      "completion_rate": 0,
+      "tasks": [
+        {
+          "id": "1774583867215",
+          "text": "Read official document of LLaMa Factory",
+          "completed": false
+        }
+      ]
+    },
     {
       "date": "Mar 28, 2026",
       "completion_rate": 50,
