@@ -1,5 +1,26 @@
 [
   {
+    "date": "Mar 30, 2026",
+    "completion_rate": 100,
+    "tasks": [
+      {
+        "id": "1774874652011",
+        "text": "5-minute quick reading of daily literature",
+        "completed": true
+      },
+      {
+        "id": "1774875006691",
+        "text": "Download and deploy metaphlan and humann database",
+        "completed": true
+      },
+      {
+        "id": "1774875564656",
+        "text": "Read LLaMa Factory document",
+        "completed": true
+      }
+    ]
+  },
+  {
     "date": "Mar 29, 2026",
     "completion_rate": 0,
     "tasks": [
