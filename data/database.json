@@ -1,11 +1,6 @@
 {
   "tasks": [
     {
-      "id": "1774583867215",
-      "text": "Read official document of LLaMa Factory",
-      "completed": false
-    },
-    {
       "id": "1774874652011",
       "text": "5-minute quick reading of daily literature",
       "completed": true
@@ -13,13 +8,13 @@
     {
       "id": "1774874700862",
       "text": "Read SFT to Eval section of LLaMa Factory document",
-      "completed": false
+      "completed": true
     }
   ],
   "weeklyStats": [
     {
       "name": "Mon",
-      "completion": 33
+      "completion": 100
     },
     {
       "name": "Tue",
