@@ -9,12 +9,17 @@
       "id": "1774874652011",
       "text": "5-minute quick reading of daily literature",
       "completed": true
+    },
+    {
+      "id": "1774874700862",
+      "text": "Read SFT to Eval section of LLaMa Factory document",
+      "completed": false
     }
   ],
   "weeklyStats": [
     {
       "name": "Mon",
-      "completion": 50
+      "completion": 33
     },
     {
       "name": "Tue",
