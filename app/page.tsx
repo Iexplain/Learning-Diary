@@ -23,7 +23,6 @@ export default function Dashboard() {
   const [isSyncing, setIsSyncing] = useState(false);
   const [currentDate, setCurrentDate] = useState('');
 
-  // 历史时光机状态
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [historyMonths, setHistoryMonths] = useState<string[]>([]);
   const [selectedMonth, setSelectedMonth] = useState<string | null>(null);
@@ -35,7 +34,7 @@ export default function Dashboard() {
     
     const fetchRealTimeData = async () => {
       try {
-        const GITHUB_TOKEN = typeof window !== 'undefined' ? localStorage.getItem('GITHUB_PAT') : null;
+        const GITHUB_TOKEN = (typeof window !== 'undefined' ? localStorage.getItem('GITHUB_PAT') : null) || process.env.NEXT_PUBLIC_GITHUB_TOKEN;
         const headers: HeadersInit = { 'Accept': 'application/vnd.github.v3+json', 'Cache-Control': 'no-cache' };
         if (GITHUB_TOKEN) headers['Authorization'] = `Bearer ${GITHUB_TOKEN}`;
 
@@ -80,7 +79,6 @@ export default function Dashboard() {
     const newPercentage = newTasks.length === 0 ? 0 : Math.round((newTasks.filter(t => t.completed).length / newTasks.length) * 100);
     const todayShort = new Date().toLocaleDateString('en-US', { weekday: 'short' });
     
-    // 核心修复：永远焊死数组顺序，精准定位今天的格子更新数据
     const newStats = weeklyStats.map(stat => 
       stat.name === todayShort ? { ...stat, completion: newPercentage } : stat
     );
@@ -89,16 +87,18 @@ export default function Dashboard() {
     syncData(newTasks, newStats);
   };
 
+  // 🌟 核心修复 2：更加健壮的添加任务逻辑
   const addTask = () => {
     if (!newTaskText.trim()) return;
-    handleUpdateTasks([...tasks, { id: Date.now().toString(), text: newTaskText, completed: false }]);
+    const newTask = { id: Date.now().toString(), text: newTaskText, completed: false };
+    const newTasks = [...tasks, newTask];
     setNewTaskText('');
+    handleUpdateTasks(newTasks);
   };
 
   const toggleTask = (id: string) => handleUpdateTasks(tasks.map(t => t.id === id ? { ...t, completed: !t.completed } : t));
   const deleteTask = (id: string) => handleUpdateTasks(tasks.filter(t => t.id !== id));
 
-  // 时光机：打开并加载月份列表
   const handleOpenHistory = async () => {
     setIsHistoryOpen(true);
     setIsLoadingHistory(true);
@@ -111,7 +111,6 @@ export default function Dashboard() {
     }
   };
 
-  // 时光机：加载具体的月份数据
   const handleSelectMonth = async (month: string) => {
     setIsLoadingHistory(true);
     setSelectedMonth(month);
@@ -123,11 +122,10 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-gray-50 text-gray-800 p-8 font-sans relative">
       
-      {/* 历史时光机弹窗 (Modal) */}
+      {/* 历史时光机弹窗 (保持不变) */}
       {isHistoryOpen && (
         <div className="fixed inset-0 bg-gray-900/40 backdrop-blur-md flex items-center justify-center z-50 p-6 transition-all">
           <div className="bg-white w-full max-w-5xl h-[85vh] rounded-3xl shadow-2xl border border-gray-100 flex flex-col overflow-hidden">
-            {/* 弹窗顶部栏 */}
             <div className="flex justify-between items-center px-8 py-5 border-b border-gray-100 bg-gray-50/50">
               <div className="flex items-center gap-3">
                 <ArchiveIcon className="text-[#8A9A8B]" size={24} />
@@ -138,9 +136,7 @@ export default function Dashboard() {
               </button>
             </div>
             
-            {/* 弹窗主体结构 */}
             <div className="flex flex-1 overflow-hidden">
-              {/* 左侧：月份选择器 */}
               <div className="w-64 bg-gray-50/30 border-r border-gray-100 p-6 overflow-y-auto">
                 <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4 px-2">Timeline</h3>
                 {historyMonths.length === 0 && !isLoadingHistory ? (
@@ -161,7 +157,6 @@ export default function Dashboard() {
                 )}
               </div>
 
-              {/* 右侧：月度数据流展示区 */}
               <div className="flex-1 bg-white p-8 overflow-y-auto relative">
                 {isLoadingHistory ? (
                   <div className="absolute inset-0 flex flex-col items-center justify-center text-[#8A9A8B]">
@@ -172,7 +167,6 @@ export default function Dashboard() {
                   <div className="max-w-3xl mx-auto space-y-10 pb-12">
                     {monthData.map((dayData, index) => (
                       <div key={index} className="relative pl-8 before:absolute before:left-0 before:top-2 before:bottom-0 before:w-px before:bg-gray-200">
-                        {/* 时间轴锚点 */}
                         <div className="absolute left-[-4px] top-2 w-2 h-2 rounded-full bg-[#8A9A8B] ring-4 ring-white" />
                         
                         <div className="flex justify-between items-baseline mb-4">
@@ -210,7 +204,6 @@ export default function Dashboard() {
 
       {/* 主控制面板 */}
       <div className="max-w-4xl mx-auto space-y-8">
-        
         <header className="flex justify-between items-center bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
           <div>
             <h1 className="text-2xl font-semibold tracking-tight">Learning Diary</h1>
@@ -229,14 +222,21 @@ export default function Dashboard() {
         </header>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          
-          {/* 左侧主要区域 */}
           <div className="md:col-span-2 space-y-4">
             <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
               <h2 className="text-lg font-medium mb-4 text-gray-700">Daily Focus</h2>
               <div className="flex gap-3 mb-6">
+                {/* 🌟 核心修复 3：使用 onKeyDown 替代 onKeyPress，并增加 preventDefault 防止表单隐式提交 */}
                 <input 
-                  type="text" value={newTaskText} onChange={(e) => setNewTaskText(e.target.value)} onKeyPress={(e) => e.key === 'Enter' && addTask()}
+                  type="text" 
+                  value={newTaskText} 
+                  onChange={(e) => setNewTaskText(e.target.value)} 
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault(); 
+                      addTask();
+                    }
+                  }}
                   placeholder="Enter your task here..." 
                   className="flex-1 px-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:border-[#8A9A8B] transition-all"
                 />
@@ -272,7 +272,6 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* 右侧归档区 */}
           <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col h-full">
             <h2 className="text-lg font-medium mb-4 text-gray-700">Recent Archives</h2>
             <div className="flex flex-col gap-3 flex-1">
@@ -314,7 +313,6 @@ export default function Dashboard() {
               })}
             </div>
             
-            {/* 🌟 时光机入口按钮 */}
             <button 
               onClick={handleOpenHistory}
               className="mt-6 w-full py-3 flex items-center justify-center gap-2 text-sm font-medium text-[#8A9A8B] border border-[#8A9A8B]/30 hover:bg-[#8A9A8B] hover:text-white rounded-xl transition-all shadow-sm"
