@@ -3,36 +3,33 @@
 export const saveToGithub = async (data: any) => {
   try {
     const GITHUB_TOKEN = typeof window !== 'undefined' ? localStorage.getItem('GITHUB_PAT') : null;
-    
-    // 🌟 核心修复 1：防弹衣！如果环境变量丢失，强制回退到你自己的专属仓库名，绝不迷路
     const REPO_OWNER = process.env.NEXT_PUBLIC_REPO_OWNER || 'iexplain';
     const REPO_NAME = process.env.NEXT_PUBLIC_REPO_NAME || 'Learning-Diary';
     const PATH = 'data/database.json';
 
-    // 🌟 核心修复 2：大喇叭！如果没拿到钥匙，直接弹窗警告，拒绝静默失败
     if (!GITHUB_TOKEN) {
       alert("⚠️ 保存失败：未检测到管理员密钥！\n👉 请点击页面上方标题旁的 ⚙️ 齿轮图标，输入你的 Token。");
       return false;
     }
 
-    const getRes = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${PATH}`, {
+    // 🌟 强制加上时间戳 ?t=... 彻底粉碎缓存，保证每次拿到的 SHA 都是最新的
+    const getRes = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${PATH}?t=${Date.now()}`, {
       headers: {
         'Authorization': `Bearer ${GITHUB_TOKEN}`,
         'Accept': 'application/vnd.github.v3+json',
-        'Cache-Control': 'no-cache'
+        'Cache-Control': 'no-cache, no-store, must-revalidate'
       }
     });
 
     if (!getRes.ok) {
       if (getRes.status === 401) alert("⚠️ Token 无效或已过期，请去 GitHub 重新生成！");
-      if (getRes.status === 404) alert(`⚠️ 找不到远程仓库 ${REPO_OWNER}/${REPO_NAME}，请检查名称。`);
-      throw new Error('Failed to fetch file SHA');
+      else if (getRes.status === 404) alert(`⚠️ 找不到远程仓库 ${REPO_OWNER}/${REPO_NAME}，请检查名称。`);
+      return false;
     }
     
     const fileData = await getRes.json();
     const sha = fileData.sha;
     
-    // 🌟 核心修复 3：中文翻译官！彻底解决原生 btoa 遇到中文字符直接崩溃的底层 Bug
     const encodeBase64 = (str: string) => {
       return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g,
           function toSolidBytes(match, p1) {
@@ -55,11 +52,17 @@ export const saveToGithub = async (data: any) => {
       })
     });
 
-    if (!updateRes.ok) throw new Error('Failed to update file');
+    // 🌟 报错大喇叭：只要写入失败，立刻拦截并弹窗显示 GitHub 官方报错原因！
+    if (!updateRes.ok) {
+      const errData = await updateRes.json().catch(() => ({ message: 'Unknown error' }));
+      alert(`❌ 致命错误：数据未能保存到 GitHub！\n\n状态码: ${updateRes.status}\n报错信息: ${errData.message}\n\n👉 最可能的原因：你申请 Token 时，忘记勾选【repo】的全部写入权限了！请重新申请并勾选。`);
+      return false;
+    }
     
     return true;
   } catch (error) {
     console.error("Sync Protocol Error:", error);
+    alert("⚠️ 发生严重网络错误，保存中断！");
     return false;
   }
 };
@@ -73,7 +76,7 @@ export const getHistoryMonths = async (): Promise<string[]> => {
     const headers: HeadersInit = { 'Accept': 'application/vnd.github.v3+json' };
     if (GITHUB_TOKEN) headers['Authorization'] = `Bearer ${GITHUB_TOKEN}`;
 
-    const res = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/data/history`, { headers });
+    const res = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/data/history?t=${Date.now()}`, { headers });
     if (!res.ok) return [];
     
     const files = await res.json();
@@ -98,13 +101,12 @@ export const getHistoryData = async (month: string) => {
     const headers: HeadersInit = { 'Accept': 'application/vnd.github.v3+json' };
     if (GITHUB_TOKEN) headers['Authorization'] = `Bearer ${GITHUB_TOKEN}`;
 
-    const res = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/data/history/${month}.json`, { headers });
+    const res = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/data/history/${month}.json?t=${Date.now()}`, { headers });
     if (!res.ok) return [];
     
     const fileData = await res.json();
     const cleanBase64 = fileData.content.replace(/\n/g, '');
     
-    // 🌟 同步修复获取历史数据时的中文解码问题
     const decodeBase64 = (str: string) => {
       return decodeURIComponent(atob(str).split('').map(function(c) {
           return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
@@ -114,7 +116,6 @@ export const getHistoryData = async (month: string) => {
     const decodedContent = decodeBase64(cleanBase64);
     return JSON.parse(decodedContent);
   } catch (e) {
-    // CDN 降级备用通道
     try {
       const REPO_OWNER = process.env.NEXT_PUBLIC_REPO_OWNER || 'iexplain';
       const REPO_NAME = process.env.NEXT_PUBLIC_REPO_NAME || 'Learning-Diary';
