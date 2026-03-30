@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { Check, X, Plus, RefreshCw, Archive as ArchiveIcon, Calendar, Loader2 } from 'lucide-react';
+import { Check, X, Plus, RefreshCw, Archive as ArchiveIcon, Calendar, Loader2, Settings } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { saveToGithub, getHistoryMonths, getHistoryData } from '@/lib/github';
 
@@ -23,6 +23,10 @@ export default function Dashboard() {
   const [isSyncing, setIsSyncing] = useState(false);
   const [currentDate, setCurrentDate] = useState('');
 
+  // 🌟 管理员模式：本地存储密钥体系
+  const [isAdminPanelOpen, setIsAdminPanelOpen] = useState(false);
+  const [tokenInput, setTokenInput] = useState('');
+
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [historyMonths, setHistoryMonths] = useState<string[]>([]);
   const [selectedMonth, setSelectedMonth] = useState<string | null>(null);
@@ -34,7 +38,7 @@ export default function Dashboard() {
     
     const fetchRealTimeData = async () => {
       try {
-        const GITHUB_TOKEN = (typeof window !== 'undefined' ? localStorage.getItem('GITHUB_PAT') : null) || process.env.NEXT_PUBLIC_GITHUB_TOKEN;
+        const GITHUB_TOKEN = typeof window !== 'undefined' ? localStorage.getItem('GITHUB_PAT') : null;
         const headers: HeadersInit = { 'Accept': 'application/vnd.github.v3+json', 'Cache-Control': 'no-cache' };
         if (GITHUB_TOKEN) headers['Authorization'] = `Bearer ${GITHUB_TOKEN}`;
 
@@ -87,7 +91,6 @@ export default function Dashboard() {
     syncData(newTasks, newStats);
   };
 
-  // 🌟 核心修复 2：更加健壮的添加任务逻辑
   const addTask = () => {
     if (!newTaskText.trim()) return;
     const newTask = { id: Date.now().toString(), text: newTaskText, completed: false };
@@ -104,11 +107,8 @@ export default function Dashboard() {
     setIsLoadingHistory(true);
     const months = await getHistoryMonths();
     setHistoryMonths(months);
-    if (months.length > 0) {
-      handleSelectMonth(months[0]);
-    } else {
-      setIsLoadingHistory(false);
-    }
+    if (months.length > 0) handleSelectMonth(months[0]);
+    else setIsLoadingHistory(false);
   };
 
   const handleSelectMonth = async (month: string) => {
@@ -122,7 +122,41 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-gray-50 text-gray-800 p-8 font-sans relative">
       
-      {/* 历史时光机弹窗 (保持不变) */}
+      {/* 🛡️ 隐藏的超级管理员控制台 */}
+      {isAdminPanelOpen && (
+        <div className="fixed inset-0 bg-gray-900/40 backdrop-blur-sm flex items-center justify-center z-[100] p-6 transition-all">
+          <div className="bg-white rounded-3xl p-8 w-full max-w-md shadow-2xl border border-gray-100">
+            <h3 className="text-xl font-bold text-gray-800 mb-2">⚙️ Admin Gateway</h3>
+            <p className="text-xs text-gray-500 mb-6 leading-relaxed">
+              Inject your Personal Access Token (PAT) here. It will be encrypted and stored securely in your browser's local cache.
+            </p>
+            <input 
+              type="password"
+              value={tokenInput}
+              onChange={(e) => setTokenInput(e.target.value)}
+              placeholder="ghp_................................"
+              className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-[#8A9A8B] mb-6 text-sm font-mono"
+            />
+            <div className="flex justify-end gap-3">
+              <button onClick={() => setIsAdminPanelOpen(false)} className="px-5 py-2 text-sm font-medium text-gray-500 hover:bg-gray-100 rounded-xl transition-colors">Cancel</button>
+              <button 
+                onClick={() => {
+                  if (tokenInput.trim()) {
+                    localStorage.setItem('GITHUB_PAT', tokenInput.trim());
+                    setIsAdminPanelOpen(false);
+                    alert('✅ 密钥注入成功！当前浏览器已获得数据库读写权限。');
+                  }
+                }} 
+                className="px-5 py-2 text-sm font-medium bg-[#8A9A8B] text-white hover:bg-[#7A8A7B] rounded-xl shadow-sm transition-colors"
+              >
+                Inject Core
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 历史时光机弹窗 */}
       {isHistoryOpen && (
         <div className="fixed inset-0 bg-gray-900/40 backdrop-blur-md flex items-center justify-center z-50 p-6 transition-all">
           <div className="bg-white w-full max-w-5xl h-[85vh] rounded-3xl shadow-2xl border border-gray-100 flex flex-col overflow-hidden">
@@ -168,14 +202,12 @@ export default function Dashboard() {
                     {monthData.map((dayData, index) => (
                       <div key={index} className="relative pl-8 before:absolute before:left-0 before:top-2 before:bottom-0 before:w-px before:bg-gray-200">
                         <div className="absolute left-[-4px] top-2 w-2 h-2 rounded-full bg-[#8A9A8B] ring-4 ring-white" />
-                        
                         <div className="flex justify-between items-baseline mb-4">
                           <h4 className="text-lg font-semibold text-gray-800">{dayData.date}</h4>
                           <span className="text-xs font-bold px-3 py-1 bg-gray-100 text-[#8A9A8B] rounded-full">
                             {dayData.completion_rate ?? 0}% Achieved
                           </span>
                         </div>
-                        
                         <div className="grid grid-cols-1 gap-2 bg-gray-50/50 p-5 rounded-2xl border border-gray-100">
                           {dayData.tasks.length === 0 ? (
                             <p className="text-sm text-gray-400 italic">No tasks recorded on this day.</p>
@@ -206,7 +238,13 @@ export default function Dashboard() {
       <div className="max-w-4xl mx-auto space-y-8">
         <header className="flex justify-between items-center bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
           <div>
-            <h1 className="text-2xl font-semibold tracking-tight">Learning Diary</h1>
+            <div className="flex items-center gap-3">
+              <h1 className="text-2xl font-semibold tracking-tight">Learning Diary</h1>
+              {/* 🌟 后门入口：点击这里呼出配置面板 */}
+              <button onClick={() => setIsAdminPanelOpen(true)} className="text-gray-300 hover:text-[#8A9A8B] transition-colors" title="Admin Control">
+                <Settings size={18} />
+              </button>
+            </div>
             <p className="text-gray-400 text-sm mt-1">{currentDate}</p>
           </div>
           <div className="flex flex-col items-end w-48">
@@ -226,13 +264,13 @@ export default function Dashboard() {
             <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
               <h2 className="text-lg font-medium mb-4 text-gray-700">Daily Focus</h2>
               <div className="flex gap-3 mb-6">
-                {/* 🌟 核心修复 3：使用 onKeyDown 替代 onKeyPress，并增加 preventDefault 防止表单隐式提交 */}
                 <input 
                   type="text" 
                   value={newTaskText} 
                   onChange={(e) => setNewTaskText(e.target.value)} 
                   onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
+                    // 🌟 交互级防坑：精确拦截输入法的组合过程，解决吞键和异常录入
+                    if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
                       e.preventDefault(); 
                       addTask();
                     }
