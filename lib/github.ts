@@ -2,14 +2,15 @@
 
 export const saveToGithub = async (data: any) => {
   try {
-    // 🌟 核心修复 1：双重保障！优先读取本地缓存，如果没有，回退使用环境变量
-    const GITHUB_TOKEN = (typeof window !== 'undefined' ? localStorage.getItem('GITHUB_PAT') : null) || process.env.NEXT_PUBLIC_GITHUB_TOKEN;
+    // 🌟 架构级重构：绝对不从环境变量读取私钥，仅从当前浏览器的安全缓存读取！
+    const GITHUB_TOKEN = typeof window !== 'undefined' ? localStorage.getItem('GITHUB_PAT') : null;
     const REPO_OWNER = process.env.NEXT_PUBLIC_REPO_OWNER;
     const REPO_NAME = process.env.NEXT_PUBLIC_REPO_NAME;
     const PATH = 'data/database.json';
 
+    // 如果没有 Token，直接拦截，拒绝毫无意义的空请求，防止界面卡死
     if (!GITHUB_TOKEN) {
-      alert("⚠️ 同步失败：未找到 GitHub Token！请确保配置了 NEXT_PUBLIC_GITHUB_TOKEN");
+      console.warn("🔒 管理员未登录：数据目前仅在本地浏览器生效，刷新将丢失。");
       return false;
     }
 
@@ -21,7 +22,10 @@ export const saveToGithub = async (data: any) => {
       }
     });
 
-    if (!getRes.ok) throw new Error('Failed to fetch file SHA');
+    if (!getRes.ok) {
+      if (getRes.status === 401) alert("⚠️ 严重警告：Token 已失效或被 GitHub 安全拦截！请去网页隐藏设置中重新配置。");
+      throw new Error('Failed to fetch file SHA');
+    }
     
     const fileData = await getRes.json();
     const sha = fileData.sha;
@@ -36,24 +40,26 @@ export const saveToGithub = async (data: any) => {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        message: 'Update task data via UI',
+        message: 'Update task data via UI (Admin)',
         content: contentEncoded,
         sha: sha
       })
     });
 
-    if (!updateRes.ok) throw new Error('Failed to update file');
+    if (!updateRes.ok) {
+      if (updateRes.status === 409) console.warn("⏳ 操作过快导致版本号冲突，已被系统自动消化，请勿频繁点击。");
+      throw new Error('Failed to update file');
+    }
     return true;
   } catch (error) {
-    console.error("Error saving to GitHub:", error);
-    alert("⚠️ 保存到 GitHub 失败，请检查网络或 Token 权限。");
+    console.error("Sync Protocol Error:", error);
     return false;
   }
 };
 
 export const getHistoryMonths = async (): Promise<string[]> => {
   try {
-    const GITHUB_TOKEN = (typeof window !== 'undefined' ? localStorage.getItem('GITHUB_PAT') : null) || process.env.NEXT_PUBLIC_GITHUB_TOKEN;
+    const GITHUB_TOKEN = typeof window !== 'undefined' ? localStorage.getItem('GITHUB_PAT') : null;
     const headers: HeadersInit = { 'Accept': 'application/vnd.github.v3+json' };
     if (GITHUB_TOKEN) headers['Authorization'] = `Bearer ${GITHUB_TOKEN}`;
 
@@ -69,14 +75,13 @@ export const getHistoryMonths = async (): Promise<string[]> => {
       .sort()
       .reverse();
   } catch (e) {
-    console.error(e);
     return [];
   }
 };
 
 export const getHistoryData = async (month: string) => {
   try {
-    const GITHUB_TOKEN = (typeof window !== 'undefined' ? localStorage.getItem('GITHUB_PAT') : null) || process.env.NEXT_PUBLIC_GITHUB_TOKEN;
+    const GITHUB_TOKEN = typeof window !== 'undefined' ? localStorage.getItem('GITHUB_PAT') : null;
     const headers: HeadersInit = { 'Accept': 'application/vnd.github.v3+json' };
     if (GITHUB_TOKEN) headers['Authorization'] = `Bearer ${GITHUB_TOKEN}`;
 
@@ -92,7 +97,6 @@ export const getHistoryData = async (month: string) => {
       const res = await fetch(`https://raw.githubusercontent.com/${process.env.NEXT_PUBLIC_REPO_OWNER}/${process.env.NEXT_PUBLIC_REPO_NAME}/main/data/history/${month}.json?t=${Date.now()}`);
       return await res.json();
     } catch (err) {
-      console.error("Failed to load history", err);
       return [];
     }
   }
