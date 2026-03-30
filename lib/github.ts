@@ -1,13 +1,16 @@
+// lib/github.ts
+
 export const saveToGithub = async (data: any) => {
   try {
-    const GITHUB_TOKEN = typeof window !== 'undefined' ? localStorage.getItem('GITHUB_PAT') : null;
+    // 🌟 核心修复 1：双重保障！优先读取本地缓存，如果没有，回退使用环境变量
+    const GITHUB_TOKEN = (typeof window !== 'undefined' ? localStorage.getItem('GITHUB_PAT') : null) || process.env.NEXT_PUBLIC_GITHUB_TOKEN;
     const REPO_OWNER = process.env.NEXT_PUBLIC_REPO_OWNER;
     const REPO_NAME = process.env.NEXT_PUBLIC_REPO_NAME;
     const PATH = 'data/database.json';
 
     if (!GITHUB_TOKEN) {
-      console.error("Missing GitHub Token. Please set it in Settings.");
-      return;
+      alert("⚠️ 同步失败：未找到 GitHub Token！请确保配置了 NEXT_PUBLIC_GITHUB_TOKEN");
+      return false;
     }
 
     const getRes = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${PATH}`, {
@@ -40,16 +43,17 @@ export const saveToGithub = async (data: any) => {
     });
 
     if (!updateRes.ok) throw new Error('Failed to update file');
-    
+    return true;
   } catch (error) {
     console.error("Error saving to GitHub:", error);
+    alert("⚠️ 保存到 GitHub 失败，请检查网络或 Token 权限。");
+    return false;
   }
 };
 
-// 🌟 新增：探针 1 - 获取已归档的月份列表 (例如 ['2026-03', '2026-02'])
 export const getHistoryMonths = async (): Promise<string[]> => {
   try {
-    const GITHUB_TOKEN = typeof window !== 'undefined' ? localStorage.getItem('GITHUB_PAT') : null;
+    const GITHUB_TOKEN = (typeof window !== 'undefined' ? localStorage.getItem('GITHUB_PAT') : null) || process.env.NEXT_PUBLIC_GITHUB_TOKEN;
     const headers: HeadersInit = { 'Accept': 'application/vnd.github.v3+json' };
     if (GITHUB_TOKEN) headers['Authorization'] = `Bearer ${GITHUB_TOKEN}`;
 
@@ -59,7 +63,6 @@ export const getHistoryMonths = async (): Promise<string[]> => {
     const files = await res.json();
     if (!Array.isArray(files)) return [];
     
-    // 过滤出 .json 文件，提取名字，并按月份倒序排列
     return files
       .filter((f: any) => f.name.endsWith('.json'))
       .map((f: any) => f.name.replace('.json', ''))
@@ -71,10 +74,9 @@ export const getHistoryMonths = async (): Promise<string[]> => {
   }
 };
 
-// 🌟 新增：探针 2 - 拉取具体某个月份的所有历史任务
 export const getHistoryData = async (month: string) => {
   try {
-    const GITHUB_TOKEN = typeof window !== 'undefined' ? localStorage.getItem('GITHUB_PAT') : null;
+    const GITHUB_TOKEN = (typeof window !== 'undefined' ? localStorage.getItem('GITHUB_PAT') : null) || process.env.NEXT_PUBLIC_GITHUB_TOKEN;
     const headers: HeadersInit = { 'Accept': 'application/vnd.github.v3+json' };
     if (GITHUB_TOKEN) headers['Authorization'] = `Bearer ${GITHUB_TOKEN}`;
 
@@ -86,7 +88,6 @@ export const getHistoryData = async (month: string) => {
     const decodedContent = decodeURIComponent(escape(atob(cleanBase64)));
     return JSON.parse(decodedContent);
   } catch (e) {
-    // CDN 降级备用通道
     try {
       const res = await fetch(`https://raw.githubusercontent.com/${process.env.NEXT_PUBLIC_REPO_OWNER}/${process.env.NEXT_PUBLIC_REPO_NAME}/main/data/history/${month}.json?t=${Date.now()}`);
       return await res.json();
