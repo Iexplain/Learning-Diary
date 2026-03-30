@@ -9,6 +9,11 @@
       "id": "1774875006691",
       "text": "Download and deploy metaphlan and humann database",
       "completed": true
+    },
+    {
+      "id": "1774875564656",
+      "text": "Read LLaMa Factory document",
+      "completed": true
     }
   ],
   "weeklyStats": [
