@@ -8,13 +8,13 @@
     {
       "id": "1774874700862",
       "text": "Read SFT to Eval section of LLaMa Factory document",
-      "completed": true
+      "completed": false
     }
   ],
   "weeklyStats": [
     {
       "name": "Mon",
-      "completion": 100
+      "completion": 50
     },
     {
       "name": "Tue",
