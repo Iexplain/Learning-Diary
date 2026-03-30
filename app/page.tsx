@@ -41,11 +41,15 @@ export default function Dashboard() {
         const REPO_OWNER = process.env.NEXT_PUBLIC_REPO_OWNER || 'iexplain';
         const REPO_NAME = process.env.NEXT_PUBLIC_REPO_NAME || 'Learning-Diary';
         
-        const headers: HeadersInit = { 'Accept': 'application/vnd.github.v3+json', 'Cache-Control': 'no-cache, no-store, must-revalidate' };
+        // 🌟 修复：去掉了跨域拦截杀手 Cache-Control
+        const headers: HeadersInit = { 'Accept': 'application/vnd.github.v3+json' };
         if (GITHUB_TOKEN) headers['Authorization'] = `Bearer ${GITHUB_TOKEN}`;
 
-        // 🌟 添加时间戳强制粉碎 GitHub 的 CDN 读取缓存
-        const res = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/data/database.json?t=${Date.now()}`, { headers });
+        // 🌟 修复：改用 cache: 'no-store' 配置
+        const res = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/data/database.json?t=${Date.now()}`, { 
+          cache: 'no-store',
+          headers 
+        });
         if (!res.ok) throw new Error(`API failed`);
 
         const fileData = await res.json();
@@ -83,13 +87,11 @@ export default function Dashboard() {
   const totalCount = tasks.length;
   const completionPercentage = totalCount === 0 ? 0 : Math.round((completedCount / totalCount) * 100);
 
-  // 🌟 核心升级：带有“撤回功能”的同步函数
   const syncData = async (updatedTasks: Task[], updatedStats: WeeklyStat[], rollbackTasks: Task[], rollbackStats: WeeklyStat[]) => {
     setIsSyncing(true);
     const success = await saveToGithub({ tasks: updatedTasks, weeklyStats: updatedStats, archives: archives });
     setIsSyncing(false);
     
-    // 如果后台拒绝了我们，立刻把界面倒退回刚才的样子，绝不留幻觉！
     if (!success) {
       setTasks(rollbackTasks);
       setWeeklyStats(rollbackStats);
@@ -97,7 +99,6 @@ export default function Dashboard() {
   };
 
   const handleUpdateTasks = (newTasks: Task[]) => {
-    // 记住修改前的样子，留作备用撤回
     const oldTasks = [...tasks];
     const oldStats = [...weeklyStats];
 
@@ -110,8 +111,6 @@ export default function Dashboard() {
     );
     
     setWeeklyStats(newStats);
-    
-    // 把“如果失败用来撤回的数据”一并传过去
     syncData(newTasks, newStats, oldTasks, oldStats);
   };
 
@@ -179,7 +178,6 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* 历史时光机弹窗 */}
       {isHistoryOpen && (
         <div className="fixed inset-0 bg-gray-900/40 backdrop-blur-md flex items-center justify-center z-50 p-6 transition-all">
           <div className="bg-white w-full max-w-5xl h-[85vh] rounded-3xl shadow-2xl border border-gray-100 flex flex-col overflow-hidden">
@@ -240,7 +238,7 @@ export default function Dashboard() {
                                 <div className={`mt-0.5 w-4 h-4 rounded flex-shrink-0 flex items-center justify-center border ${task.completed ? 'bg-[#8A9A8B] border-[#8A9A8B]' : 'border-gray-300 bg-white'}`}>
                                   {task.completed && <Check size={10} className="text-white" />}
                                 </div>
-                                <span className={`text-sm leading-relaxed ${task.completed ? 'line-through text-gray-400' : 'text-gray-700'}`}>
+                                <span className={`text-xs leading-relaxed ${task.completed ? 'line-through text-[#8A9A8B]' : 'text-gray-600'}`}>
                                   {task.text}
                                 </span>
                               </div>
@@ -257,7 +255,6 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* 主控制面板 */}
       <div className="max-w-4xl mx-auto space-y-8">
         <header className="flex justify-between items-center bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
           <div>
