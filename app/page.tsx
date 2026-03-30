@@ -23,7 +23,6 @@ export default function Dashboard() {
   const [isSyncing, setIsSyncing] = useState(false);
   const [currentDate, setCurrentDate] = useState('');
 
-  // 🌟 管理员模式：本地存储密钥体系
   const [isAdminPanelOpen, setIsAdminPanelOpen] = useState(false);
   const [tokenInput, setTokenInput] = useState('');
 
@@ -39,15 +38,25 @@ export default function Dashboard() {
     const fetchRealTimeData = async () => {
       try {
         const GITHUB_TOKEN = typeof window !== 'undefined' ? localStorage.getItem('GITHUB_PAT') : null;
-        const headers: HeadersInit = { 'Accept': 'application/vnd.github.v3+json', 'Cache-Control': 'no-cache' };
+        const REPO_OWNER = process.env.NEXT_PUBLIC_REPO_OWNER || 'iexplain';
+        const REPO_NAME = process.env.NEXT_PUBLIC_REPO_NAME || 'Learning-Diary';
+        
+        const headers: HeadersInit = { 'Accept': 'application/vnd.github.v3+json', 'Cache-Control': 'no-cache, no-store, must-revalidate' };
         if (GITHUB_TOKEN) headers['Authorization'] = `Bearer ${GITHUB_TOKEN}`;
 
-        const res = await fetch(`https://api.github.com/repos/${process.env.NEXT_PUBLIC_REPO_OWNER}/${process.env.NEXT_PUBLIC_REPO_NAME}/contents/data/database.json`, { headers });
+        // 🌟 添加时间戳强制粉碎 GitHub 的 CDN 读取缓存
+        const res = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/data/database.json?t=${Date.now()}`, { headers });
         if (!res.ok) throw new Error(`API failed`);
 
         const fileData = await res.json();
         const cleanBase64 = fileData.content.replace(/\n/g, '');
-        const decodedContent = decodeURIComponent(escape(atob(cleanBase64)));
+        
+        const decodeBase64 = (str: string) => {
+          return decodeURIComponent(atob(str).split('').map(function(c) {
+              return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+          }).join(''));
+        };
+        const decodedContent = decodeBase64(cleanBase64);
         const data = JSON.parse(decodedContent);
         
         setTasks(data.tasks || []);
@@ -55,7 +64,9 @@ export default function Dashboard() {
         setArchives(data.archives || []);
         
       } catch (err) {
-        fetch(`https://raw.githubusercontent.com/${process.env.NEXT_PUBLIC_REPO_OWNER}/${process.env.NEXT_PUBLIC_REPO_NAME}/main/data/database.json?t=${Date.now()}`)
+        const REPO_OWNER = process.env.NEXT_PUBLIC_REPO_OWNER || 'iexplain';
+        const REPO_NAME = process.env.NEXT_PUBLIC_REPO_NAME || 'Learning-Diary';
+        fetch(`https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/main/data/database.json?t=${Date.now()}`)
           .then(res => res.json())
           .then(data => {
             setTasks(data.tasks || []);
@@ -72,13 +83,24 @@ export default function Dashboard() {
   const totalCount = tasks.length;
   const completionPercentage = totalCount === 0 ? 0 : Math.round((completedCount / totalCount) * 100);
 
-  const syncData = async (updatedTasks: Task[], updatedStats: WeeklyStat[]) => {
+  // 🌟 核心升级：带有“撤回功能”的同步函数
+  const syncData = async (updatedTasks: Task[], updatedStats: WeeklyStat[], rollbackTasks: Task[], rollbackStats: WeeklyStat[]) => {
     setIsSyncing(true);
-    await saveToGithub({ tasks: updatedTasks, weeklyStats: updatedStats, archives: archives });
+    const success = await saveToGithub({ tasks: updatedTasks, weeklyStats: updatedStats, archives: archives });
     setIsSyncing(false);
+    
+    // 如果后台拒绝了我们，立刻把界面倒退回刚才的样子，绝不留幻觉！
+    if (!success) {
+      setTasks(rollbackTasks);
+      setWeeklyStats(rollbackStats);
+    }
   };
 
   const handleUpdateTasks = (newTasks: Task[]) => {
+    // 记住修改前的样子，留作备用撤回
+    const oldTasks = [...tasks];
+    const oldStats = [...weeklyStats];
+
     setTasks(newTasks);
     const newPercentage = newTasks.length === 0 ? 0 : Math.round((newTasks.filter(t => t.completed).length / newTasks.length) * 100);
     const todayShort = new Date().toLocaleDateString('en-US', { weekday: 'short' });
@@ -88,7 +110,9 @@ export default function Dashboard() {
     );
     
     setWeeklyStats(newStats);
-    syncData(newTasks, newStats);
+    
+    // 把“如果失败用来撤回的数据”一并传过去
+    syncData(newTasks, newStats, oldTasks, oldStats);
   };
 
   const addTask = () => {
@@ -122,13 +146,12 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-gray-50 text-gray-800 p-8 font-sans relative">
       
-      {/* 🛡️ 隐藏的超级管理员控制台 */}
       {isAdminPanelOpen && (
         <div className="fixed inset-0 bg-gray-900/40 backdrop-blur-sm flex items-center justify-center z-[100] p-6 transition-all">
           <div className="bg-white rounded-3xl p-8 w-full max-w-md shadow-2xl border border-gray-100">
             <h3 className="text-xl font-bold text-gray-800 mb-2">⚙️ Admin Gateway</h3>
             <p className="text-xs text-gray-500 mb-6 leading-relaxed">
-              Inject your Personal Access Token (PAT) here. It will be encrypted and stored securely in your browser's local cache.
+              Inject your Personal Access Token (PAT) here. Ensure it has the full <b>repo</b> scope ticked.
             </p>
             <input 
               type="password"
@@ -144,7 +167,7 @@ export default function Dashboard() {
                   if (tokenInput.trim()) {
                     localStorage.setItem('GITHUB_PAT', tokenInput.trim());
                     setIsAdminPanelOpen(false);
-                    alert('✅ 密钥注入成功！当前浏览器已获得数据库读写权限。');
+                    alert('✅ 密钥注入成功！请尝试添加任务。如果弹窗报错，说明密钥权限不足。');
                   }
                 }} 
                 className="px-5 py-2 text-sm font-medium bg-[#8A9A8B] text-white hover:bg-[#7A8A7B] rounded-xl shadow-sm transition-colors"
@@ -240,7 +263,6 @@ export default function Dashboard() {
           <div>
             <div className="flex items-center gap-3">
               <h1 className="text-2xl font-semibold tracking-tight">Learning Diary</h1>
-              {/* 🌟 后门入口：点击这里呼出配置面板 */}
               <button onClick={() => setIsAdminPanelOpen(true)} className="text-gray-300 hover:text-[#8A9A8B] transition-colors" title="Admin Control">
                 <Settings size={18} />
               </button>
@@ -269,7 +291,6 @@ export default function Dashboard() {
                   value={newTaskText} 
                   onChange={(e) => setNewTaskText(e.target.value)} 
                   onKeyDown={(e) => {
-                    // 🌟 交互级防坑：精确拦截输入法的组合过程，解决吞键和异常录入
                     if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
                       e.preventDefault(); 
                       addTask();
@@ -331,7 +352,7 @@ export default function Dashboard() {
                           <p className="text-xs text-gray-400 italic">No tasks recorded.</p>
                         ) : (
                           archive.tasks.map(task => (
-                            <div key={task.id} className="flex items-start gap-3">
+                            <div key={task.id} className="flex items-start gap-3 p-2">
                               <div className={`mt-0.5 w-4 h-4 rounded flex-shrink-0 flex items-center justify-center border ${task.completed ? 'bg-[#8A9A8B] border-[#8A9A8B]' : 'border-gray-300'}`}>
                                 {task.completed && <Check size={10} className="text-white" />}
                               </div>
