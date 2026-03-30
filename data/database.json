@@ -8,13 +8,13 @@
     {
       "id": "1774874606784",
       "text": "4",
-      "completed": false
+      "completed": true
     }
   ],
   "weeklyStats": [
     {
       "name": "Mon",
-      "completion": 0
+      "completion": 50
     },
     {
       "name": "Tue",
