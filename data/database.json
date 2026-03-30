@@ -13,13 +13,13 @@
     {
       "id": "1774875006691",
       "text": "Download and deploy metaphlan and humann database",
-      "completed": false
+      "completed": true
     }
   ],
   "weeklyStats": [
     {
       "name": "Mon",
-      "completion": 67
+      "completion": 100
     },
     {
       "name": "Tue",
