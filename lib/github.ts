@@ -12,12 +12,12 @@ export const saveToGithub = async (data: any) => {
       return false;
     }
 
-    // 🌟 强制加上时间戳 ?t=... 彻底粉碎缓存，保证每次拿到的 SHA 都是最新的
+    // 🌟 核心修复：移除 headers 里的 Cache-Control，改用原生 cache: 'no-store' 选项，彻底避开跨域拦截！
     const getRes = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${PATH}?t=${Date.now()}`, {
+      cache: 'no-store',
       headers: {
         'Authorization': `Bearer ${GITHUB_TOKEN}`,
-        'Accept': 'application/vnd.github.v3+json',
-        'Cache-Control': 'no-cache, no-store, must-revalidate'
+        'Accept': 'application/vnd.github.v3+json'
       }
     });
 
@@ -52,10 +52,9 @@ export const saveToGithub = async (data: any) => {
       })
     });
 
-    // 🌟 报错大喇叭：只要写入失败，立刻拦截并弹窗显示 GitHub 官方报错原因！
     if (!updateRes.ok) {
       const errData = await updateRes.json().catch(() => ({ message: 'Unknown error' }));
-      alert(`❌ 致命错误：数据未能保存到 GitHub！\n\n状态码: ${updateRes.status}\n报错信息: ${errData.message}\n\n👉 最可能的原因：你申请 Token 时，忘记勾选【repo】的全部写入权限了！请重新申请并勾选。`);
+      alert(`❌ 致命错误：数据未能保存到 GitHub！\n\n状态码: ${updateRes.status}\n报错信息: ${errData.message}`);
       return false;
     }
     
@@ -76,7 +75,10 @@ export const getHistoryMonths = async (): Promise<string[]> => {
     const headers: HeadersInit = { 'Accept': 'application/vnd.github.v3+json' };
     if (GITHUB_TOKEN) headers['Authorization'] = `Bearer ${GITHUB_TOKEN}`;
 
-    const res = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/data/history?t=${Date.now()}`, { headers });
+    const res = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/data/history?t=${Date.now()}`, { 
+      cache: 'no-store',
+      headers 
+    });
     if (!res.ok) return [];
     
     const files = await res.json();
@@ -101,7 +103,10 @@ export const getHistoryData = async (month: string) => {
     const headers: HeadersInit = { 'Accept': 'application/vnd.github.v3+json' };
     if (GITHUB_TOKEN) headers['Authorization'] = `Bearer ${GITHUB_TOKEN}`;
 
-    const res = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/data/history/${month}.json?t=${Date.now()}`, { headers });
+    const res = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/data/history/${month}.json?t=${Date.now()}`, { 
+      cache: 'no-store',
+      headers 
+    });
     if (!res.ok) return [];
     
     const fileData = await res.json();
