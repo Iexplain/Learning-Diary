@@ -3,7 +3,7 @@
     {
       "id": "1774920581607",
       "text": "5-minute quick reading of daily literature",
-      "completed": false
+      "completed": true
     }
   ],
   "weeklyStats": [
@@ -13,7 +13,7 @@
     },
     {
       "name": "Tue",
-      "completion": 0
+      "completion": 100
     },
     {
       "name": "Wed",
