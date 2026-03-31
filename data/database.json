@@ -1,5 +1,11 @@
 {
-  "tasks": [],
+  "tasks": [
+    {
+      "id": "1774920581607",
+      "text": "5-minute quick reading of daily literature",
+      "completed": false
+    }
+  ],
   "weeklyStats": [
     {
       "name": "Mon",
