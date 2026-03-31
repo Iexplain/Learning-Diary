@@ -1,5 +1,21 @@
 [
   {
+    "date": "Mar 31, 2026",
+    "completion_rate": 100,
+    "tasks": [
+      {
+        "id": "1774920581607",
+        "text": "5-minute quick reading of daily literature",
+        "completed": true
+      },
+      {
+        "id": "1774927926321",
+        "text": "Ready for species classification and functional annotation",
+        "completed": true
+      }
+    ]
+  },
+  {
     "date": "Mar 30, 2026",
     "completion_rate": 100,
     "tasks": [

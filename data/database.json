@@ -1,16 +1,5 @@
 {
-  "tasks": [
-    {
-      "id": "1774920581607",
-      "text": "5-minute quick reading of daily literature",
-      "completed": true
-    },
-    {
-      "id": "1774927926321",
-      "text": "Ready for species classification and functional annotation",
-      "completed": true
-    }
-  ],
+  "tasks": [],
   "weeklyStats": [
     {
       "name": "Mon",
@@ -42,6 +31,22 @@
     }
   ],
   "archives": [
+    {
+      "date": "Mar 31, 2026",
+      "completion_rate": 100,
+      "tasks": [
+        {
+          "id": "1774920581607",
+          "text": "5-minute quick reading of daily literature",
+          "completed": true
+        },
+        {
+          "id": "1774927926321",
+          "text": "Ready for species classification and functional annotation",
+          "completed": true
+        }
+      ]
+    },
     {
       "date": "Mar 30, 2026",
       "completion_rate": 100,
@@ -157,31 +162,6 @@
           "id": "1774402519731",
           "text": "每日文献速读5分钟",
           "completed": true
-        }
-      ]
-    },
-    {
-      "date": "Mar 24, 2026",
-      "tasks": [
-        {
-          "id": "1774315697108",
-          "text": "每日文献速读5分钟",
-          "completed": true
-        },
-        {
-          "id": "1774320720338",
-          "text": "按K或P rank分类，看绛维聚类能否分开",
-          "completed": true
-        },
-        {
-          "id": "1774331095798",
-          "text": "完善Learning Diary网页的功能，添加Yearly Archive的任务清单以及完成状态",
-          "completed": true
-        },
-        {
-          "id": "1774345815099",
-          "text": "hclust分类：给每个样本打上标签（cluster 1/2）",
-          "completed": false
         }
       ]
     }
