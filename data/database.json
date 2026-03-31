@@ -8,7 +8,7 @@
     {
       "id": "1774927926321",
       "text": "Ready for species classification and functional annotation",
-      "completed": false
+      "completed": true
     }
   ],
   "weeklyStats": [
@@ -18,7 +18,7 @@
     },
     {
       "name": "Tue",
-      "completion": 50
+      "completion": 100
     },
     {
       "name": "Wed",
