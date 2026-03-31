@@ -4,6 +4,11 @@
       "id": "1774920581607",
       "text": "5-minute quick reading of daily literature",
       "completed": true
+    },
+    {
+      "id": "1774927926321",
+      "text": "Ready for species classification and functional annotation",
+      "completed": false
     }
   ],
   "weeklyStats": [
@@ -13,7 +18,7 @@
     },
     {
       "name": "Tue",
-      "completion": 100
+      "completion": 50
     },
     {
       "name": "Wed",
