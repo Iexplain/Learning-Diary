@@ -1,11 +1,5 @@
 {
-  "tasks": [
-    {
-      "id": "1775005909905",
-      "text": "5-minute quick reading of daily literature",
-      "completed": true
-    }
-  ],
+  "tasks": [],
   "weeklyStats": [
     {
       "name": "Mon",
@@ -37,6 +31,17 @@
     }
   ],
   "archives": [
+    {
+      "date": "Apr 01, 2026",
+      "completion_rate": 100,
+      "tasks": [
+        {
+          "id": "1775005909905",
+          "text": "5-minute quick reading of daily literature",
+          "completed": true
+        }
+      ]
+    },
     {
       "date": "Mar 31, 2026",
       "completion_rate": 100,
@@ -147,26 +152,6 @@
         {
           "id": "1774537042857",
           "text": "通读GNN原论文了解原理",
-          "completed": true
-        }
-      ]
-    },
-    {
-      "date": "Mar 25, 2026",
-      "tasks": [
-        {
-          "id": "1774345815099",
-          "text": "hclust分类：给每个样本打上标签（cluster 1/2）",
-          "completed": true
-        },
-        {
-          "id": "1774401506408",
-          "text": "准备周四汇报的文献",
-          "completed": false
-        },
-        {
-          "id": "1774402519731",
-          "text": "每日文献速读5分钟",
           "completed": true
         }
       ]
