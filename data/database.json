@@ -1,11 +1,5 @@
 {
-  "tasks": [
-    {
-      "id": "1775097120067",
-      "text": "5-minute quick reading of daily literature",
-      "completed": true
-    }
-  ],
+  "tasks": [],
   "weeklyStats": [
     {
       "name": "Mon",
@@ -37,6 +31,17 @@
     }
   ],
   "archives": [
+    {
+      "date": "Apr 02, 2026",
+      "completion_rate": 100,
+      "tasks": [
+        {
+          "id": "1775097120067",
+          "text": "5-minute quick reading of daily literature",
+          "completed": true
+        }
+      ]
+    },
     {
       "date": "Apr 01, 2026",
       "completion_rate": 100,
@@ -138,26 +143,6 @@
         {
           "id": "1774600607680",
           "text": "technology of text vector retrieval: Siamese Encoder & Dual Encoder",
-          "completed": true
-        }
-      ]
-    },
-    {
-      "date": "Mar 26, 2026",
-      "tasks": [
-        {
-          "id": "1774401506408",
-          "text": "准备周四汇报的文献",
-          "completed": true
-        },
-        {
-          "id": "1774513560921",
-          "text": "每日文献速读5分钟",
-          "completed": true
-        },
-        {
-          "id": "1774537042857",
-          "text": "通读GNN原论文了解原理",
           "completed": true
         }
       ]

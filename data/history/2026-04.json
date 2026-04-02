@@ -1,5 +1,16 @@
 [
   {
+    "date": "Apr 02, 2026",
+    "completion_rate": 100,
+    "tasks": [
+      {
+        "id": "1775097120067",
+        "text": "5-minute quick reading of daily literature",
+        "completed": true
+      }
+    ]
+  },
+  {
     "date": "Apr 01, 2026",
     "completion_rate": 100,
     "tasks": [
