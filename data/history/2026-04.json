@@ -1,5 +1,10 @@
 [
   {
+    "date": "Apr 03, 2026",
+    "completion_rate": 0,
+    "tasks": []
+  },
+  {
     "date": "Apr 02, 2026",
     "completion_rate": 100,
     "tasks": [
