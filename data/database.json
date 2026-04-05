@@ -3,19 +3,19 @@
   "weeklyStats": [
     {
       "name": "Mon",
-      "completion": 100
+      "completion": 0
     },
     {
       "name": "Tue",
-      "completion": 100
+      "completion": 0
     },
     {
       "name": "Wed",
-      "completion": 100
+      "completion": 0
     },
     {
       "name": "Thu",
-      "completion": 100
+      "completion": 0
     },
     {
       "name": "Fri",
@@ -31,6 +31,11 @@
     }
   ],
   "archives": [
+    {
+      "date": "Apr 05, 2026",
+      "completion_rate": 0,
+      "tasks": []
+    },
     {
       "date": "Apr 04, 2026",
       "completion_rate": 0,
@@ -97,17 +102,6 @@
           "id": "1774875564656",
           "text": "Read LLaMa Factory document",
           "completed": true
-        }
-      ]
-    },
-    {
-      "date": "Mar 29, 2026",
-      "completion_rate": 0,
-      "tasks": [
-        {
-          "id": "1774583867215",
-          "text": "Read official document of LLaMa Factory",
-          "completed": false
         }
       ]
     }
