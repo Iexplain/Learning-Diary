@@ -32,6 +32,11 @@
   ],
   "archives": [
     {
+      "date": "Apr 07, 2026",
+      "completion_rate": 0,
+      "tasks": []
+    },
+    {
       "date": "Apr 06, 2026",
       "completion_rate": 0,
       "tasks": []
@@ -69,22 +74,6 @@
         {
           "id": "1775005909905",
           "text": "5-minute quick reading of daily literature",
-          "completed": true
-        }
-      ]
-    },
-    {
-      "date": "Mar 31, 2026",
-      "completion_rate": 100,
-      "tasks": [
-        {
-          "id": "1774920581607",
-          "text": "5-minute quick reading of daily literature",
-          "completed": true
-        },
-        {
-          "id": "1774927926321",
-          "text": "Ready for species classification and functional annotation",
           "completed": true
         }
       ]
