@@ -3,7 +3,7 @@
     {
       "id": "1777381799194",
       "text": "obisidian + AI model -> Local AI knowledge base",
-      "completed": false
+      "completed": true
     }
   ],
   "weeklyStats": [
@@ -13,7 +13,7 @@
     },
     {
       "name": "Tue",
-      "completion": 0
+      "completion": 100
     },
     {
       "name": "Wed",
