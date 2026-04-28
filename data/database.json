@@ -1,11 +1,5 @@
 {
-  "tasks": [
-    {
-      "id": "1777381799194",
-      "text": "obisidian + AI model -> Local AI knowledge base",
-      "completed": true
-    }
-  ],
+  "tasks": [],
   "weeklyStats": [
     {
       "name": "Mon",
@@ -38,6 +32,17 @@
   ],
   "archives": [
     {
+      "date": "Apr 28, 2026",
+      "completion_rate": 100,
+      "tasks": [
+        {
+          "id": "1777381799194",
+          "text": "obisidian + AI model -> Local AI knowledge base",
+          "completed": true
+        }
+      ]
+    },
+    {
       "date": "Apr 27, 2026",
       "completion_rate": 0,
       "tasks": []
@@ -64,11 +69,6 @@
     },
     {
       "date": "Apr 22, 2026",
-      "completion_rate": 0,
-      "tasks": []
-    },
-    {
-      "date": "Apr 21, 2026",
       "completion_rate": 0,
       "tasks": []
     }
