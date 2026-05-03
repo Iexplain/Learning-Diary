@@ -7,7 +7,7 @@
     },
     {
       "name": "Tue",
-      "completion": 100
+      "completion": 0
     },
     {
       "name": "Wed",
@@ -31,6 +31,11 @@
     }
   ],
   "archives": [
+    {
+      "date": "May 03, 2026",
+      "completion_rate": 0,
+      "tasks": []
+    },
     {
       "date": "May 02, 2026",
       "completion_rate": 0,
@@ -64,11 +69,6 @@
     },
     {
       "date": "Apr 27, 2026",
-      "completion_rate": 0,
-      "tasks": []
-    },
-    {
-      "date": "Apr 26, 2026",
       "completion_rate": 0,
       "tasks": []
     }
