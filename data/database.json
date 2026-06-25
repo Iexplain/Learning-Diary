@@ -32,6 +32,11 @@
   ],
   "archives": [
     {
+      "date": "Jun 25, 2026",
+      "completion_rate": 0,
+      "tasks": []
+    },
+    {
       "date": "Jun 24, 2026",
       "completion_rate": 0,
       "tasks": []
@@ -58,11 +63,6 @@
     },
     {
       "date": "Jun 19, 2026",
-      "completion_rate": 0,
-      "tasks": []
-    },
-    {
-      "date": "Jun 18, 2026",
       "completion_rate": 0,
       "tasks": []
     }
