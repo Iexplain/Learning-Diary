@@ -1,11 +1,5 @@
 {
-  "tasks": [
-    {
-      "id": "1785228044118",
-      "text": "系统回顾Agent面试基础题，包括function call、mcp、skill等",
-      "completed": true
-    }
-  ],
+  "tasks": [],
   "weeklyStats": [
     {
       "name": "Mon",
@@ -38,6 +32,17 @@
   ],
   "archives": [
     {
+      "date": "Jul 28, 2026",
+      "completion_rate": 100,
+      "tasks": [
+        {
+          "id": "1785228044118",
+          "text": "系统回顾Agent面试基础题，包括function call、mcp、skill等",
+          "completed": true
+        }
+      ]
+    },
+    {
       "date": "Jul 27, 2026",
       "completion_rate": 0,
       "tasks": []
@@ -64,11 +69,6 @@
     },
     {
       "date": "Jul 22, 2026",
-      "completion_rate": 0,
-      "tasks": []
-    },
-    {
-      "date": "Jul 21, 2026",
       "completion_rate": 0,
       "tasks": []
     }
