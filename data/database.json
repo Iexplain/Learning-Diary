@@ -3,7 +3,7 @@
     {
       "id": "1785228044118",
       "text": "系统回顾Agent面试基础题，包括function call、mcp、skill等",
-      "completed": false
+      "completed": true
     }
   ],
   "weeklyStats": [
@@ -13,7 +13,7 @@
     },
     {
       "name": "Tue",
-      "completion": 0
+      "completion": 100
     },
     {
       "name": "Wed",
