@@ -1,5 +1,11 @@
 {
-  "tasks": [],
+  "tasks": [
+    {
+      "id": "1785227961025",
+      "text": "hi",
+      "completed": false
+    }
+  ],
   "weeklyStats": [
     {
       "name": "Mon",
